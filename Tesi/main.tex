@@ -1,0 +1,536 @@
+\documentclass[11pt]{report}
+\usepackage{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[english,italian]{babel}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{verbatim}
+\usepackage{mathtools}
+\usepackage{booktabs}
+\usepackage{comment}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{capt-of}
+
+
+
+
+
+
+
+
+\geometry{a4paper, top=4cm, bottom=4cm, left=3.7cm, right=3.7cm}
+
+\begin{document}
+
+\title{Tesi Magistrale}
+
+\author{Mattia Marchi 817587 }
+
+\date{}
+
+\maketitle
+
+
+
+\newpage
+
+\begin{abstract}
+Da scrivere
+\end{abstract}
+
+
+
+
+\newpage
+
+\tableofcontents
+
+
+\newpage
+
+\chapter{Introduzione}
+
+Negli ultimi decenni si è assistito ad un'esplosione della quantità di dati digitali condivisi nel web. Gli utenti avvertono sempre più la necessità di sistemi che possano filtrare in modo automatizzato i contenuti, così che gli vengano proposti solo quelli di loro potenziale interesse. Con questo obiettivo, nei primi anni '90 sono stati sviluppati i primi \textit{Recommender System} (RS) che hanno rivoluzionato l'e-commerce e la fruizione di contenuti da parte delle persone \cite{Konstan2012Apr}. Dal momento della loro nascita fino ai giorni d'oggi, sono stati diversi gli sviluppi e i contesti in cui tali sistemi hanno operato e continuano tuttora ad operare. Uno di questi campi è quello musicale. 
+Oggigiorno, le persone trascorrono ore intere ad ascoltare la propria musica preferita. Il rapporto sulle abitudini del consumo musicale realizzato dall'IFPI relativo all'anno 2021 ha rivelato che il tempo che le persone di tutto il mondo dedicano all'ascolto della musica è in continuo aumento. Secondo \emph{International Federation of the Phonographic Industry}, a livello globale si è raggiunta una media di ascolto settimanale pari a 18.4 ore, mentre localizzando l'analisi solamente all'Italia questo dato cresce fino a 19.1 ore \cite{BibEntry2022Feb}. Differenti studi hanno mostrato come l'ascolto della musica abbia un impatto decisivo sul cambiamento delle emozioni che le persone provano nel breve periodo e sulla loro capacità di affrontare situazioni difficili. Per esempio, Lehmberg \textit{et al.}\cite{Lehmberg2010BenefitsOM} hanno scoperto evidenza di diversi benefici che la musica dal vivo può portare alle persone anziane: potenziale incremento dell'aspettativa di vita, minore stress, miglioramento della situazione medica e complessivo aumento della felicità. Secondo uno studio congiunto dell'università di Durham in Inghilterra e dell'università di Jyväskylä in Finlandia \cite{Eerola2016Jun} anche la musica più triste può portare alle persone conforto e appagamento. Nonostante ciò, lo stesso studio ha anche evidenziato come questo tipo di musica possa causare in alcuni soggetti sofferenza. 
+Un'ulteriore studio del 2013 \cite{Ferguson2013Jan} ha portato evidenza del fatto che l'ascolto della musica allegra può portare ad un miglioramento complessivo dell'umore delle persone in sole due settimane.\\
+
+Diversi studi nell'ambito della psicologia applicata al contesto musicale hanno confermato che la musica può suscitare nell'ascoltatore una risposta emozionale molto forte \cite{Krumhansl}\cite{Mitterschiffthaler2007Nov}\cite{Charlotte}. Le emozioni e i sentimenti hanno suscitato fin dai tempi più antichi interesse e attenzione da parte di filosofi, psicologi, dottori e ricercatori che lavorano in questi ambiti \cite{Barrett2006Mar}. Lo studio delle emozioni è nato svariati secoli fa e con il passare degli anni ne sono state fornite svariate definizioni. Gran parte delle teorie moderne definiscono le emozioni come un processo multicomponenziale, ovvero formato da distinte componenti in continua evoluzione nel corso del tempo. Alcuni studiosi descrivono le emozioni come forti sensazioni che nascono in seguito al verificarsi di esperienze, positive o negative\cite{knuuttila2004emotions}. Altri ricercatori invece, le caratterizzano come stati psicologici provocati da cambiamenti neuro-fisici associati a pensieri, sentimenti e risposte comportamentali\cite{Chaturvedi2022Feb}.
+
+Negli ultimi anni è nato un crescente interesse relativo allo sviluppo di sistemi che integrano le emozioni, al fine di garantire all'utente un'esperienza personalizzata più gratificante. La branca dell'intelligenza artificiale che studia il riconoscimento e l'utilizzo delle emozioni viene chiamata Affective Computing\cite{picard2000affective}. La nascita di tali tecniche, integrate in applicazioni musicali, ha portato allo sviluppo di sistemi di riconoscimento delle emozioni e di generazione di playlist basate sul mood attuale dell'utente.\\
+
+In questo lavoro viene esplorata la possibilità di creare un sistema di raccomandazione e generazione di playlist basato sull'unione di diversi modelli di Deep Learning. Il sistema in questione sarà in grado di etichettare le canzoni dell'utente sulla base delle diverse emozioni che l'ascolto può indurre nel soggetto. Tale classificazione non solo potrà essere effettuata da un utente che si approccia al sistema per la prima volta, attraverso un modello studiato per essere generale, ma si potrà inoltre adattare il modello all'utente stesso, sfruttando una tecnica chiamata fine-tuning. Tale tecnica consentirà di imparare dal soggetto il suo modo di percepire emotivamente la musica, andando quindi ad affinare ulteriormente il sistema di raccomandazione.\\
+
+\section{Outline}
+
+Da aggiungere in fase finale
+
+\chapter{Quadro Teorico}
+
+Questo capitolo introduce tutti i concetti fondamentali necessari a comprendere ciò che verrà trattato in questo lavoro. 
+
+
+\section{Deep Learning}
+
+Il Deep Learning (DL) rappresenta una branca dell'intelligenza artificiale che studia modelli, basati su reti neurali, che contengono molteplici strati nascosti creando una struttura "profonda". Tali reti si utilizzano per effettuare processi di apprendimento automatico, chiamato anche Machine Learning, imparando feature rilevanti di un dataset osservando una grande quantità di dati. Ai fini della tesi verranno presentate le due principali tipologie di reti implementate nel progetto: Convolutional Neural Network (CNN) e Long Short-Term Memory (LSTM).
+
+
+\subsection{Convolutional Neural Networks}
+Una Convolutional Neural Network rappresenta un'architettura di rete neurale profonda ideata per classificare immagini \cite{krizhevsky2012imagenet}. Tale architettura, è ispirata alla biologia, consente di osservare porzioni locali di un'immagine utilizzando dei filtri per imparare diverse feature map. Attraverso questo sistema la rete è capace di capire le relazioni tra i pixels ed a estrarre feature spaziali locali. Ogni strato convoluzionale è formato da una dimensione (altezza, larghezza, canali cromatici) ed un numero di filtri. Gli strati convoluzionali sono seguiti da una funzione di attivazione e un layer di pooling spaziale, usato per ridurre la dimensione dell'input. Negli anni, grazie alla ricerca e per merito di diversi contest come \textit{ImageNet}, le reti convoluzionali hanno subito vasti miglioramenti alle performance, sviluppando reti sempre più complesse. Al fine di addestrare una CNN in un task di classificazione viene aggiunta in coda una rete neurale Fully-Connected che, grazie alle feature ottenute dalla CNN, effettuerà la predizione.  E' possibile osservare quanto descritto in figura \ref{fig:cnn}
+
+
+
+\begin{figure}[h]
+    %\hspace{-1cm}
+    \centering
+    \includegraphics[scale = 0.3]{img/cnn.png}
+    \caption{Struttura di una rete neurale convoluzionale.\footnotemark}
+    \label{fig:cnn}
+\end{figure}
+
+
+\footnotetext{Source: \url{https://www.theclickreader.com/building-a-convolutional-neural-network/}}
+
+
+Per addestrare una rete CNN è necessario avere un dataset abbastanza numeroso e una grande potenza di calcolo, pertanto è difficile che si utilizzi una rete creata ad hoc. La scelta più popolare è quella di utilizzare il tansfer learning. Questa metodologia consente di usufruire di reti pre-addestrate e adattarla al task del dominio specifico. Esistono due diversi tipi di transfer learning:
+\begin{itemize}
+    \item \textbf{Fine-Tuning}: i pesi vengono mantenuti bloccati o viene utilizzato un learning rate molto basso per non cambiare troppo i pesi. Le rete fully connected finale viene invece cambiata per ottenere una nuova rappresentazione, così da poterne addestrare una nuova mantenendo i pesi della CNN. 
+    
+
+    \item \textbf{Feature Extractor}: si taglia la rete all'ultimo layer convoluzionale e si ottiene un vettore di feature, chiamato \textit{descriptor}, il quale verrà utilizzato in un nuovo classificatore.
+
+\end{itemize}
+
+\subsection{Long Short-Term Memory}
+
+La famiglia di reti neurali specializzate nel processare dati sequenziali è chiamata Recurrent Neural Network (RNN) \cite{rumelhart1985learning}. Queste reti vengono chiamate ricorrenti perché elaborano i dati come sequenze ed ogni output dipende dalla computazione dello stato precedente. La sotto-classe delle RNN più utilizzata al giorno d'oggi è quella chiamata Long Short-Term Memory (LSTM)\cite{hochreiter1997long}. Tale rete è formata da diversi stati interni e \textit{gate} che consentono di controllare il flusso delle informazioni. I gate inoltre consentono al modello di dimenticarsi delle informazioni di poco rilievo, mantenendo solo quelle rilevanti. Nel dettaglio una rete LSTM è composta dai seguenti componenti:
+\begin{itemize}
+    \item Cell State: prende in input l'output della sequenza precedente e, in base ai gate, mantiene o cancella tale informazione;
+    
+    \item Forget Gate: utilizza una funzione sigmoide, prende in input la concatenazione dell'output della sequenza precedente e l'input della sequenza attuale, determinando se l'informazione vecchia debba essere mantenuta o cancellata;
+    
+    \item Input Gate: determina se l'input della sequenza attuale verrà aggiunto al cell state;
+    
+    \item Output Gate: lo stato finale del cell state viene filtrato da una tangente ($-1,1$), determinando il nuovo output.
+    
+\end{itemize}
+La struttura di una rete LSTM è mostrata in figura \ref{fig:lstm}.
+
+
+\begin{figure}[h]
+    %\hspace{-1cm}
+    \centering
+    \includegraphics[scale = 0.7]{img/lstm.png}
+    \caption{Struttura a gate di una rete LSTM.\footnotemark}
+    \label{fig:lstm}
+\end{figure}
+
+
+\footnotetext{Source: \url{https://colah.github.io/posts/2015-08-Understanding-LSTMs/}}
+
+
+
+\section{Le Emozioni}
+
+
+Diversi ricercatori e psicologi hanno definito alcuni modelli per classificare le emozioni fondati su diverse teorie. Tuttavia, in letteratura esistono principalmente due famiglie di approcci con cui è possibile descrivere lo stato emotivo di una persona. Il primo di questi prevede di suddividere le emozioni in uno spazio discreto, formando alcuni gruppi di aggettivi che rappresentano ciascuno un'emozione. Tale modello assume che esista un insieme limitato di categorie emozionali distinte. Uno dei modelli più rilevanti che appartiene a questa categoria è quello descritto da Plutchik\cite{plutchik2013theories} che divide le emozioni in 8 categorie rappresentate mediante la cosiddetta "\textit{wheel of emotions}", mostrata in figura \ref{fig:wheel}. L'intensità delle emozioni cresce dall'esterno verso il centro della ruota. Più è scuro il colore, maggiore è l'intensità dell'emozione.
+
+\begin{figure}[h]
+    %\hspace{-1cm}
+    \centering
+    \includegraphics[scale = 0.15]{img/Plutchik-wheel.svg.png}
+    \caption{\textit{Wheel of emotions} proposta da Plutchik.\footnotemark}
+    \label{fig:wheel}
+\end{figure}
+
+\footnotetext{Source: \url{https://commons.wikimedia.org/wiki/File:Plutchik-wheel.svg}}
+
+La seconda famiglia di modelli segue un approccio dimensionale. Tale approccio descrive ogni emozione come un punto in uno spazio continuo ed ogni dimensione rappresenta una aggettivo che caratterizza l'emozione stessa. Il modello più frequentemente utilizzato appartenente a questa categoria è quello proposto da James Russell\cite{Russel}, chiamato \textit{Circumplex Model}. Russell suggerisce che le emozioni siano distribuite in uno spazio circolare bidimensionale che contiene due dimensioni: attivazione, definito come \textit{arousal} o \textit{activation}, che indica l'intensità dell'emozione percepita e la valenza, o \textit{valence}, che esprime la polarità dell'emozione come positiva o negativa. L'arousal rappresenta l'asse verticale, mentre la valence rappresenta l'asse orizzontale. Ogni stato emozionale può essere rappresentato come un punto in questo spazio bidimensionale. Questa classificazione ha il vantaggio, tramite l'utilizzo di uno spazio continuo, di poter utilizzare valori compresi tra $[0,1]$ per esprimere ogni possibile tipologia di emozione. E' inoltre possibile inserire emozioni categoriche in questo spazio bidimensionale, così da poter effettuare una conversione tra i due modelli descritti. Una rappresentazione del modello proposto da Russell è visibile in figura \ref{fig:russell}.
+
+
+\begin{figure}[h]
+    %\hspace{-1cm}
+    \centering
+    \includegraphics[scale = 0.38]{img/Russells-circumplex.jpg}
+    \caption{Il quadrante delle emozioni proposto da Russell. \cite{seo2019automatic}}
+    \label{fig:russell}
+\end{figure}
+
+
+
+\section{Sistemi di Raccomandazione}
+
+
+In intelligenza artificiale con sistema di raccomandazione, o recommender system, si intende una classe di algoritmi di machine learning (ML) usati dagli sviluppatori software per effettuare predizioni sulle scelte dell'utente ed offrire ad esso consigli rilevanti\cite{indatalabs}.  
+Esistono principalmente quattro tipologie di recommender system: collaborative filtering, content based filtering, demographic filtering e i sistemi ibridi \cite{re-sys-survey}. Il primo di questi approcci ricerca similarità e relazioni tra gli utenti che usano il sistema. In particolare, questi modelli consigliano ad un utente \emph{$\alpha$} i contenuti che sono stati apprezzati da un utente \emph{$\beta$} simile ad \emph{$\alpha$} stesso. Viceversa, i modelli appartenenti alla seconda categoria effettuano delle raccomandazioni esclusivamente analizzando le feature e le descrizioni degli oggetti che sono stati valutati positivamente dagli utenti per consigliagliene altri simili. I modelli demografici invece sfruttano il principio per cui individui con attributi simili (ad esempio sesso, età, paese di provenienza ecc.) avranno preferenze comuni. Infine, l'approccio ibrido prevede di combinare le tecniche utilizzate dagli altri approcci per ottenere risultati superiori.
+
+Un ulteriore divisione nella tassonomia dei recommender system è data dal metodo con cui si effettua la raccomandazione. Esistono infatti due principali categorie: memory-based e model-based\cite{re-sys-survey}. Il primo metodo utilizza lo storico delle valutazioni dell'utente sui prodotti per calcolare la distanza tra due diversi utenti o \textit{items}. Il metodo model-based invece utilizza modelli di machine learning per effettuare predizioni sulle preferenze dell'utente ed effettuare raccomandazioni. I modelli più utilizzati sono matrix factorization, classificatori Bayesiani, reti neurali, algoritmi genetici e logica fuzzy. Si utilizzano inoltre tecniche di dimensionality reduction, al fine di ridurre la sparsità dei dati.\\
+
+
+Un problema noto dei sistemi di raccomandazione è chiamato cold start \cite{re-sys-survey}. Tale evento si può verificare in vari modi e porta ad avere difficoltà nella raccomandazione. Un primo caso si verifica quando non si hanno abbastanza informazioni sull'utente, appena iscritto alla piattaforma utilizzante il reccomender system, per effettuare raccomandazioni accurate. In questo caso si parla di new user problem. Un secondo caso è quando un nuovo oggetto viene aggiunto al sistema: esso non avrà abbastanza recensioni per essere adeguatamente raccomandato al giusto cluster di utenti, prendendo il nome di new item problem. La soluzione proposta in questa tesi è stata ideata con il fine di risolvere tali problemi, come si potrà leggere nei capitoli successivi.\\
+
+\subsection{Sistemi di Raccomandazione in Ambito Musicale}
+
+
+Batmaz \textit{et al.} \cite{deep-re-sys-survey} hanno effettuato uno studio comparativo dei diversi sistemi di raccomandazione, in dominio musicale, presenti in letteratura. Tale studio ha evidenziato le tipologie differenti di dati utilizzati e le ha classificate in tre diverse categorie: segnali audio, informazioni content-based e valutazioni ed utilizzo. In figura \ref{fig:musical-RS} è possibile osservare uno schema rappresentante la scelta delle feature utilizzate in 9 studi di recommender system in ambito musicale. Si osserva come quasi la totalità degli studi utilizzano le valutazioni e gli ascolti per effettuare la raccomandazione e solo in alcuni casi si associano questi dati ai segnali audio o alle informazioni content-based. Un limite di questi studi risulta però è proprio quello di non considerare le emozioni nell'effettuare raccomandazioni agli utenti, ignorando i relativi vantaggi.
+
+
+
+\begin{figure}[h!]
+	 	\centering
+	 	\includegraphics[scale = 0.75]{img/survery-RS.png}
+	 	\caption{Distribuzione tipologie di dati utilizzati come feature su 9 studi riguardanti RS in ambito musicale.\cite{deep-re-sys-survey}}
+	 	\label{fig:musical-RS}
+\end{figure}
+
+
+\chapter{Stato dell'Arte}
+
+In questo capitolo vengono illustrati diverse tipologie di modelli presenti in letteratura nell'ambito di sistemi di riconoscimento delle emozioni. Al fine di utilizzare le emozioni in un sistema di raccomandazione musicale è necessario creare un modello capace di riconoscere le possibili emozioni suscitate all'ascolto. I sistemi capaci di riconoscere emozioni in ambito musicale vengono definiti di \textit{Music Emotion Recognition} (MER). I sistemi MER sfruttano tecniche per elaborare diversi tipi di informazioni al fine di riconoscere quale tipo di emozione sarà associata ad una canzone.
+
+
+Kim \textit{et al.} \cite{kim2010music} hanno effettuato uno studio di diverse tipologie di approcci utilizzati nell'ambito dei sistemi MER, suddividendo i sistemi in due macro categorie: contextual text information e content-based audio analysis.
+
+\section{Contextual Text Information}
+
+In questi sistemi si utilizzano informazioni testuali per inferire l'emozione dell'utente. Le principali tecniche utilizzate in questo approccio sono tecniche di Information Retrieval (IR), text mining e Natural Language Processing (NLP). Ci sono diversi tipologie di sistemi che utilizzano tali informazioni:
+\begin{itemize}
+    \item \textbf{Riconoscimento emozionale dal testo}: questo approccio, tra i più studiati negli ultimi anni, consente di utilizzare modelli di intelligenza artificiale, nel campo del NLP, con l'obiettivo di capire il contesto delle frasi e associarle ad una sfera emotiva. Un esempio è fornito da Liu \textit{et al. }\cite{liu2020research} con lo sviluppo di un sistema composto da due differenti approcci. Il primo, basato su LSTM, per la parte della classificazione delle feature relative all'audio. Il secondo è ottenuto integrando un sistema chiamato \textit{BERT} (Bidirectional Encoder Representations from Transformers)\cite{devlin2018bert} per la classificazione del testo. BERT è un sistema basato su transformer, sviluppato da \textit{Google AI} nel 2018, capace di raggiungere risultati sorprendenti nei task di NLP. Tale studio dimostra come l'utilizzo di un testo di una canzone consente di analizzare con maggior precisione l'umore della canzone, capendo cosa l'autore volesse comunicare attraverso le parole. Questa ricerca è stata effettuata utilizzano 1000 canzoni e raggiunge un risultato medio di accuratezza di 79.70\%.
+    
+    
+    \item \textbf{Documenti Web}: questa metodologia analizza i dati documentali ottenibili da svariati sistemi di IR musicali, ad esempio informazioni riguardanti gli artisti, gli album e le recensioni. Uno dei principali problemi di questo approccio è dato dalla scarsa rilevanza di svariate informazioni che possono essere recuperate dai sistemi che sfruttano pagine web o forum per classificare l'umore associato ad una canzone, rendendo la maggior parte dei dati ottenuti inutili \cite{levy2007semantic}.
+    
+    
+\end{itemize}
+
+
+
+\section{Content-Based Audio Analysis}
+
+I sistemi precedentemente descritti spesso risultano incompleti a causa della possibile mancanza di informazioni associati ad una canzone o all'inconsistenza dei dati. Al fine di sopperire a tali problematiche si utilizzano i sistemi content-based che analizzano l'audio, esattamente come farebbe un essere umano ascoltando una canzone. Tali sistemi sfruttano le feature selezionate per effettuare la classificazione delle canzoni. Le tecnologie impiegate principalmente in questi sistemi sono Machine e Deep learning. \\
+
+Un primo esempio è fornito da uno studio di Han \textit{et al.} \cite{han2010music}, in cui è stato sviluppato un classificatore multi-classe basato su Support Vector Machine (SVM) utilizzante solo feature audio a basso livello come: energia, Zero Crossing Rate (ZCR), frequenza e wavelet. Le canzoni sono state etichettate su un insieme di 11 classi corrispondenti ad emozioni categoriche. Lo studio tuttavia risulta limitato ad un dataset di sole 120 canzoni. I risultati ottenuti mostrano un'accuratezza media di 67.54\%.\\
+
+Nel 2018 Bahuleyan \cite{bahuleyan2018music} ha mostrato come sia possibile utilizzare reti CNN per classificare un'immagine generata da un file audio. Le immagini create rappresentavano dei spettrogrammi di Mel, ovvero uno spettrogramma dove la frequenza, rappresentata sull'asse delle ordinate, è stata convertita in una scala di Mel mentre sull'asse delle ascisse è rappresentato il tempo \cite{roberts2022}. Infine per considerare l'ampiezza si utilizza una scala colorata come terza dimensione. Il modello utilizzato per la classificazione è la rete VGG-16 \cite{simonyan2014very}, una delle reti che ha raggiunto le migliori performance nella challenge \textiy{ImageNet}. La ricerca è stata effettuata su un vasto numero di file audio (40540) suddivisi in 7 generi musicali. Per addestrare la rete sono stati usati i due approcci del transfer learning: fine-tuning e feature extractor. La modalità che ha ottenuto l'accuratezza migliore è stata quella del modello addestrato tramite fine-tuning, con un'accuratezza media di 64\%. Sebbene questo studio non sia propriamente di ambito MER ma di classificazione di genere, risulta comunque importate da citare grazie alla dimostrazione che sia possibile utilizzare reti CNN in ambito musicale, sfruttando gli spettrogrammi di Mel, ottenendo ottimi risultati.\\
+
+
+Nel 2020, Hizlisoy \textit{et al.}\cite{hizlisoy2021music} hanno studiato come classificare le emozioni indotte dall'ascolto di canzoni tradizionale Turche. La rete utilizzata nel processo utilizza la fusione di due modello: una CNN, per la ricerca delle feature rilevanti da spettrogrammi di Mel, e una rete LSTM unita ad una rete neurale profonda per effettuare la classificazione. Il dataset di musica tradizionale Turca utilizzato è composto da solo 124 frammenti di canzone dalla durata di 30 secondi l'uno. Le annotazioni sono state effettuate su 3 classi di emozioni, basate su arousal e valence. Le performance ottenute da questo studio sono sorprendenti, raggiungendo un accuratezza massima di 99.19\%. D'altro canto tale studio rimane limitato ad un piccolo dataset e la musica utilizzata aveva il bias di essere stata scelta in un dominio molto specifico, peccando quindi in generalizzazione. Tuttavia lo studio rimane molto interessante, dimostrando come l'unione di diversi modelli di deep learning applicati ad un task di MER possano raggiungere valori di accuratezza molto elevati.
+
+
+
+
+
+
+
+
+
+\chapter{Dataset}
+
+Al fine di ottenere una generalizzazione migliore e non avere problemi di overfitting, causati da un bias dovuto a canzoni troppo simili all'interno di un singolo dataset, sono stati presi in esami 3 diversi dataset usati in campo MER. Questi dataset sono stati studiati e combinati in modo tale da evitare di avere dati eccessivamente sbilanciati. La scelta è stata effettuata utilizzando 3 vincoli sulle proprietà che i dataset dovevano avere:
+\begin{enumerate}
+
+    \item I file audio associati alle canzoni dovevano essere disponibili: per poter sfruttare un modello di deep learning capace di analizzare e comprende le emozioni associate ad una canzone era necessario avere a disposizione i file audio da elaborare. Il formato scelto è stato \textit{mp3} essendo quello più comune in questo ambito.
+    
+    \item Ogni file audio doveva avere una durata di almeno 30 secondi: questo vincolo è stato imposto a causa della necessità di avere una lunghezza fissa per trasformare i file audio in spettrogrammi di Mel, fissata a 30 secondi come descritto nel capitolo successivo.
+    
+    \item Ogni file audio doveva avere un'annotazione riguardante un'emozione: questo aspetto è fondamentale in uno progetto di deep learning, infatti ogni campione deve essere propriamente etichettato così da poter addestrare il modello a riconoscere tale etichetta.
+    
+\end{enumerate}
+
+
+
+Una difficoltà riscontrata è stata quella di allineare tutti i vari dataset con un'etichetta condivisa. Per il progetto sono state utilizzate 4 etichette, basate sui quadranti di Russell. La notazione adottata è visibile in tabella \ref{tab1}. Nella fase di pre-processing tutte le etichette emozionali associate alle canzoni, presenti nei dataset di riferimento, sono state convertite nel sistema di notazione adottato.
+
+\newpage
+
+\begin{table}
+\caption{Notazione utilizzata per etichettare le emozioni associate alle canzoni nei quadranti di Russel}
+\label{tab1}
+\centering
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Arousal} &  \textbf{Valence} & \textbf{Etichetta} & \textbf{Quadrante}\\
+\hline
+Basso &  Negativo & 0 & A-V-\\
+Basso & Positivo & 1 & A-V+\\
+Alto & Negativo & 2 & A+V-\\
+Alto & Positivo & 3 & A+V+\\
+\hline
+\end{tabular}
+\end{table}
+
+I tre dataset selezionati ed utilizzati nel progetto sono: \textit{PMEmo}\cite{zhang2018pmemo}, \textit{4Q}\cite{panda2018musical}\cite{panda2018novel} ed \textit{Emotify}\cite{aljanaki2014collecting}\cite{aljanaki2016studying}. 
+
+
+\section{PMEmo}
+
+\textit{PMEmo}\footnote{https://github.com/HuiZhangDB/PMEmo} è un dataset disponibile pubblicamente alla comunità di ricerca, sviluppato da Zhang \textit{et al}. nel 2018. Il dataset è nato per supportare la ricerca di ambito MER ed affective computing, andando ad annotare le emozioni esplicite ed i segnali fisiologici associati a 457 soggetti in ascolto della musica. Il dataset comprende 794 file audio, corrispondenti ai ritornelli di canzoni in cima alle classifiche dei brani più ascoltati nel 2016. Nel dettaglio:
+\begin{itemize}
+    \item 487 canzoni da \textit{Billboard Hot 100};     
+    \item 616 canzoni da \textit{iTunes Top 100};
+    \item 226 canzoni da \textit{UK Top 40 singles}.
+\end{itemize}
+
+I file audio presenti in questo dataset presentano una lunghezza variabile, è stato dunque necessario convertire ogni file ad una lunghezza fissa di 30 secondi. Le annotazioni relative alle emozioni provate dai soggetti in ascolto sono state descritte come un valore compreso tra $[0,1]$ di arousal e valence. Al fine di utilizzare la notazione standardizzata per tutti i dataset è stata effettuata la seguente conversione:
+
+\begin{itemize}
+    \item $(Arousal \le 0.5) \wedge (Valence \le 0.5) \to Etichetta = 0$
+    \item $(Arousal \le 0.5) \wedge (Valence > 0.5) \to Etichetta = 1$
+    \item $(Arousal > 0.5) \wedge (Valence \le 0.5) \to Etichetta = 2$
+    \item $(Arousal > 0.5) \wedge (Valence > 0.5) \to Etichetta = 3$
+\end{itemize}
+
+Il dataset risulta estremamente sbilanciato, dovuto ad un grande numero di canzoni con annotazione relativa a valence ed arousal maggiore di 0.5, com'è possibile osservare in figura \ref{fig-pmemo}. Per questa ragione, solo un sottoinsieme di 150 file audio è stato utilizzato nel progetto, con l'obiettivo di evitare un training set troppo sbilanciato.
+
+\begin{figure}
+\centering
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.65]{img/PMEmo_distribution_annotations.PNG}
+    \caption{Distribuzione delle annotazioni nel dataset PMEmo \cite{zhang2018pmemo}.}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/PMEmo-class.png}
+    \caption{Distribuzione delle etichette dopo la conversione.}
+	\end{subfigure}
+	\quad
+\caption{Distribuzioni delle annotazioni prima e dopo la conversione.}
+\label{fig-pmemo}
+\end{figure}
+
+
+\section{4Q}
+\textit{4Q}\footnote{http://mir.dei.uc.pt/downloads.html} è un dataset creato da Panda \textit{et al.} nel 2018 \cite{panda2018musical}\cite{panda2018novel}. Questo dataset contiene 900 file audio musicali suddivise ed organizzate in quattro diverse cartelle, ciascuna contenente 225 file e corrispondente ad un quadrante di Russell. Il dataset contiene inoltre una serie di meta-dati associati alle canzoni, ad esempio l'artista e il genere di riferimento, tuttavia queste informazioni aggiuntive non sono state tenute in considerazione per il progetto. Le clip musicali sono state ottenute attraverso diverse query all'API \textit{AllMusic}\footnote{http://developer.rovicorp.com} e successivamente sono state filtrate ottenendo un totale di 39983 canzoni. Da questo insieme è stato effettuato un bilanciamento, ottenendo un sotto-insieme di 900 canzoni candidate. Il dataset risultante è estremamente bilanciato e dunque tutte le occorrenze sono state utilizzate ai fini del progetto. Le clip, della durata di 30 secondi, non hanno dovuto subire modifiche e sono state utilizzate nella loro interezza.
+
+
+
+\section{Emotify}
+
+\textit{Emotify} è un dataset\footnote{http://www2.projects.science.uu.nl/memotion/emotifydata/} creato da Aljanaki \textit{et al.} nel 2014\cite{aljanaki2014collecting}\cite{aljanaki2016studying}. Questo dataset contiene un totale di 400 canzoni, divise per 4 diversi generi: musica classica, elettronica, pop e rock. La musica è stata ottenuta dalla compagnia \textit{Magnatune recording}\footnote{http://magnatune.com/}. Le annotazioni sono state ottenute tramite un gioco nel quale ogni utente poteva ascoltare la traccia audio ed esprimere diverse preferenze, come il gradimento, e la scelta di fino a tre emozioni che descrivessero ciò che ha provato all'ascolto. A differenza dei dataset descritti precedentemente, \textit{Emotify} utilizza delle annotazioni di tipo categorico basate sulla scala GEMS (Geneva Emotional Music Scale) \cite{zentner2008emotions}. Per ciascuna canzone è stata assegnata un'annotazione contente il numero di voti totali per ogni emozione, attribuiti dai partecipanti. E' stato quindi necessario al fine del progetto scegliere una singola emozione da associare ad ogni canzoni, pertanto si è deciso di utilizzare la categoria emozionale con il numero di voti più alto. La conversione tra emozioni categoriche nei quattro quadranti di Russell è stata effettuata seguendo lo schema in figura \ref{fig-emotify}.
+
+
+\begin{figure}
+\centering
+\includegraphics[scale = 0.6]{img/categorical-to-russell.PNG}
+\caption{Russell circumplex contenente emozioni categoriche usato per la conversione\cite{panda2018novel}.}
+\label{fig-emotify}
+\end{figure}
+
+
+Una volta effettuata la conversione è stato potuto verificare che il dataset risultava estremamente sbilanciato, con la maggior parte delle canzoni etichettate come basso arousal e valence positiva: ciò è dovuto probabilmente al numero di aggettivi categorici proposti nel gioco, i quali propendevano per questo specifico quadrante. E' possibile osservare lo sbilanciamento citato in figura \ref{fig-emotify2}.
+Pertanto anche in questo caso, al fine di evitare un eccessivo sbilanciamento del training set, sono stati utilizzati solamente 150 file audio.
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.6]{img/Emotify_class.png}
+\caption{ Distribuzione delle etichette dopo la
+conversione da categorico ai quadranti di Russell.}
+\label{fig-emotify2}
+\end{figure}
+
+
+
+\newpage
+
+\section{Preprocessing}
+
+Una volta scelti i dataset da utilizzare è stata effettuata la fase di preprocessing dei dati. In primo luogo si è standardizzato il sistema di etichettatura utilizzato, come descritto nelle sezioni precedenti, utilizzando metodi di conversioni ad hoc per ogni notazione dei diversi dataset. Una volta che le etichette sono state standardizzato è stato possibile unire i dataset creando un nuovo insieme contenente 1200 file audio dalla durata di 30 secondi ciascuno. Il modello ideato utilizza una rete CNN per analizzare visivamente le varie canzoni, pertanto è stato necessario generare per ogni file audio diversi spettrogrammi di Mel. La scelta di utilizzare gli spettrogrammi di Mel è stata fatta sulla base della loro capacità di includere informazioni para-linguali, rendendoli particolarmente utili per task di MER \cite{ma2018emotion}, come dimostrato dallo studio di Bahuleyan \cite{bahuleyan2018music} e Hizlisoy \textit{et al.} \cite{hizlisoy2021music}, descritti nel capitolo 3 relativo allo stato dell'arte. Ogni file audio è stato diviso in 5 frame da 6 secondi, ottenendo 6000 frame, su cui è stato generato lo spettrogramma. Il preprocessing dei file audio e la generazione degli spettrogrammi sono stati effettuati utilizzando la libreria Python \textit{Librosa} \cite{mcfee2015librosa}. Un esempio di spettrogrammi di Mel, generati utilizzando la libreria \textit{Librosa}, è possibile vederlo in figura \ref{fig-spectrogram}.\\
+
+
+I parametri selezionati per la generazione degli spettrogrammi di Mel sono:
+\begin{itemize}
+    \item \textbf{Frequenza di campionamento:} 22050;
+    \item \textbf{Dimensione del frame:} 2048;
+    \item \textbf{Hop Size:} 512;
+    \item \textbf{Numero di Mel bins:} 96;
+    \item \textbf{Dimensione dell'immagine:} 300 x 300 pixel.
+\end{itemize}
+
+Infine il dataset ottenuto è stato diviso in tre sottoinsiemi per effettuare l'addestramento delle reti neurali: training set, test set e validation set. Rispettivamente questi insiemi sono stati ottenuti seguendo la seguente proporzione:
+\begin{itemize}
+    \item 70\% training set: 4200 frame;
+    \item 15\% test set: 900 frame;
+        \item 15\% validation set: 900 frame.
+\end{itemize}
+
+
+La divisione è stata effettuata utilizzando gli ID dei file audio, prima della divisione in frame, così da evitare di avere frame relativi ad una stessa canzone in due insiemi diversi. 
+
+\newpage
+
+\begin{figure}
+\centering
+	\begin{subfigure}[t]{.45\textwidth}
+         \centering
+         \includegraphics[scale = 0.8]{img/Mel-0.png}
+         \caption{Basso Arousal - Valence Negativo}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+		\centering
+        \includegraphics[scale = 0.8]{img/Mel-1.png}
+        \caption{Basso Arousal - Valence Positivo}
+	\end{subfigure}
+	
+		\begin{subfigure}[t]{.45\textwidth}
+         \centering
+         \includegraphics[scale = 0.8]{img/Mel-2.png}
+         \caption{Alto Arousal - Valence Negativo}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+		\centering
+        \includegraphics[scale = 0.8]{img/Mel-3.png}
+        \caption{Alto Arousal - Valence Positivo}
+	\end{subfigure}
+	\caption{Esempio di 4 spettrogrammi di Mel generati da file audio etichettati con differenti classi emozionali.}
+	\label{fig-spectrogram}
+\end{figure}
+
+
+
+\chapter{Descrizione dei Modelli MER Proposti}
+
+L'obiettivo del lavoro è quello di creare un sistema di raccomandazione basato su modelli di Deep Learning che sfruttano le emozioni per creare la giusta playlist in base allo stato emotivo dell'utente. Il modello proposto consiste in due reti fondamentali capaci di ottenere ottime performance in task di riconoscimento emozionale in ambito musicale. Le reti implementate sono:
+\begin{itemize}
+    \item Convolutional Neural Network (CNN);
+    \item Long Short-Term Memory (LSTM).
+\end{itemize}
+
+\section{Convolutional Neural Network}
+
+La prima rete impiegata nel modello di riconoscimento emozionale è una rete 3D CNN. Tale rete è capace di riconoscere i pattern caratteristici e le feature rilevanti degli spettrogrammi di Mel, rispetto alle classi emozionali di appartenenza. La rete è definita 3D perché, oltre a ragionare sulle dimensioni di frequenza e tempo, riesce ad osservare anche il colore dello spettrogramma e quindi a capirne l'ampiezza. Com'è stato possibile notare in figura \ref{fig-spectrogram}, gli spettrogrammi differiscono visivamente quando il mood associato alla canzone è diverso, dunque la rete impara a riconoscere tali differenze.
+Al fine di ottenere performance soddisfacenti sono state analizzate due reti neurali convoluzionali pre-addestrate con performance allo stato dell'arte nel task \textit{ImageNet.} Le reti analizzate presentano sostanziali differenze architetturali, così da scegliere empiricamente quella più adatta ai fini del progetto. Le reti prese in esame sono: \textit{EfficientNet-B3} \cite{tan2019efficientnet} e \textit{MobileNetV3-Large} \cite{howard2019searching}.
+
+\newpage
+
+\subsection{EfficientNet-B3}
+
+
+Le EfficientNet sono una famiglia di reti neurali convoluzionali presentate nel maggio 2019 da Tan \textit{et al.} \cite{tan2019efficientnet}, basate su un metodo di model scaling innovativo rispetto ad altre reti allo stato dell'arte. Il vantaggio di questa architettura è la capacità di scalare uniformemente le dimensioni di larghezza, profondità e risoluzione utilizzando un coefficiente composto $\phi$. Nello specifico:
+        \begin{equation}
+            \begin{split}
+                profondità:&\ d = \alpha^\phi\\
+                larghezza:&\ w = \beta^\phi\\
+                risoluzione:&\  r = \gamma^\phi\\
+                s.t.&\ \alpha \cdot \beta^2 \cdot \gamma^2 \approx 2\\
+                &\ \alpha\geq1, \beta\geq1, \gamma\geq1
+            \end{split}
+        \end{equation}
+        dove $\alpha$, $\beta$, $\gamma$ sono costanti determinabili da una grid search.\\
+        
+        La versione B7 di EfficientNet ha raggiunto una top-1 accuracy su ImageNet pari al 84.3\%, raggiungendo lo stato dell'arte a parità di \textit{Gpipe} \cite{huang2019gpipe}, pur essendo 8.4 volte più piccola e 6.1 volte più veloce nell'inferenza.
+        EfficientNet si è inoltre dimostrata molto performante in caso di utilizzo in transfer learning, in particolare raggiungendo un'accuracy pari al 91.7\% su Cifar-100 e al 98.8\% su Flowers.\\
+        
+        Nel caso dell'obiettivo di riconoscimento emozionale trattato in questo progetto è stata scelta la versione B3, la quale prende in input immagini di dimensione 300x300 pixel. Questa decisione è dettata dal trade-off tra compattezza, quindi limiti hardware, e performance della rete. E' possibile osservare l'architettura della rete in figura \ref{fig:efficientnet-arch}.
+        Le performance delle varie versioni di EfficientNet su \textit{ImageNet} rispetto ad altre reti sono mostrate in figura \ref{fig:efficientnet}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=2]{img/Schematic-representation-of-EfficientNet-B3.png}
+    \caption{Architettura compatta della rete EfficientNet-B3 \cite{effnetb3-arch}.}
+    \label{fig:efficientnet-arch}
+\end{figure}
+
+\newpage
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.2]{img/efficientnet-performance.png}
+    \caption{Performance di EfficientNet rispetto ad altre reti nella challenge \textit{ImageNet}.}
+    \label{fig:efficientnet}
+\end{figure}
+
+
+\subsection{MobileNetV3}
+
+La rete MobileNet nasce nel aprile 2017 dallo studio di Howard \textit{et al.} \cite{mobilenet2017} nel creare una rete neurale convoluzionale "leggera", con pochi parametri e basso costo computazionale, così da poter essere utilizzata in applicazioni mobile ed applicazioni embedded di computer vision.  L'architettura utilizza quella che viene chiamata "depthwise separable convolution" (DSC), un metodo che consente di ridurre drasticamente il numero di parametri rispetto ad altre reti con la stessa profondità  \cite{pujara_2020}. Il DSC è formato da due operazioni fondamentali, fattorizzando un layer convoluzionale standard in due layer:
+\begin{itemize}
+    \item \textbf{Depthwise Convolution}: per ogni canale si effettua una convoluzione spaziale in maniera separata;
+    \item \textbf{Pointwise Convolution}: si effettua in coda una convoluzione 1X1 per cambiare la dimensione.
+\end{itemize}
+
+L'idea è quella di separare le dimensioni spaziali e la profondità dei filtri, ottenendo reti più profonde ma molto più leggere. E' possibile osservare visivamente il DSC in figura \ref{fig:DSC}. I vantaggi principali sono bassa latenza e basso costo computazionale, quindi bassa energia richiesta per l'utilizzo.
+
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=0.45]{img/Depthwise-separable-convolution-block.png}
+    \caption{Depthwise Separable Convolution (DSC) \cite{dsc}.}
+    \label{fig:DSC}
+\end{figure}
+
+
+Nel 2019 Howard \textit{et al.} \cite{howard2019searching} rilasciano una versione migliorata dell'originale MobileNet, pubblicando uno studio sulla versione di nuova generazione chiamata MobileNetV3. Tale versione ottiene un miglioramento di circa il 25\% nella velocità di inferenza rispetto alla versione V2, mantenendo la stessa accuratezza. Per ottenere questo avanzamento è stato inserito un layer chiamato "squeeze and excitation". Questo strato, posizionato dietro il global average pooling layer, lavora con feature map molto piccole (1x1) a differenza delle reti precedenti (7x7), alleggerendo la rete \cite{hollemans}. E' possibile osservare la comparazione tra la rete originale e la versione V3 in figura \ref{fig:mobv3}. Nel progetto è stata implementata la versione di MobileNetV3 "Large", ovvero quella con più parametri che raggiunge i valori di accuratezza migliore. 
+
+\begin{figure}
+    \centering
+    \includegraphics[scale=1]{img/MobileNetV3FinalStage.png}
+    \caption{Comparazione tra rete originale e la versione più efficiente V3 \cite{howard2019searching}\cite{hollemans}.}
+    \label{fig:mobv3}
+\end{figure}
+
+\newpage
+
+\subsection{Addestramento}
+
+Nella fase di training dei modelli sono stati utilizzati in partenza i pesi ottenuti dalle reti su \textit{ImageNet}, al fine di effettuare un transfer learning sul nuovo task di MER. E' stato scelto di utilizzare tali pesi grazie alla grande varietà di feature a basso livello riconosciute dalle reti, avendo quindi una buona base di partenza per riconoscere le varie differenze tra gli spettrogrammi. Per effettuare la classificazione sono stati aggiunti all'ultimo layer di output delle CNN i seguenti layer:
+\begin{itemize}
+    \item Flatten layer: ottiene le feature dall'ultimo layer delle reti CNN e ne cambia forma, togliendo la varie dimensioni agli array e restituendo una vettore ad una dimensione. Questo array monodimensionale sarà l'input della rete fully-connected usata come classificatore;
+    
+    \item Dense layer di 1024 neuroni: classico strato di una rete fully-connected dove ogni neurone è collegato in input ed output a tutti quelli precedenti e successivi;
+    
+    \item Dropout Layer con dropout rate di 0.5: strato usato per la regolarizzazione della rete. Ogni iterazione vengono disattivati il 50\% dei neuroni, scelti in maniera causale, così da evitare che l'informazione passi sempre per neuroni troppo specializzati, creando il fenomeno di overfitting. Lo spegnere in maniera random sempre diversi neuroni fa si che l'informazione trovi sempre una via diversa per confluire nella rete, distribuendo meglio i pesi;
+
+    \item Dense layer di 512 neuroni;
+    
+    \item Dropout layer con dropout rate di 0.4: andando avanti negli strati è bene diminuire la percentuale di dropout dato che i neuroni diventano sempre di numero minore;
+    
+    \item Dense layer di 128 neuroni;
+    
+    \item Dropout layer con dropout rate di 0.3;
+    
+    \item Dense layer di 4 neuroni con funzione di attivazione softmax: layer di output della rete, ogni neurone rappresenta una classe. La funzione softmax ottiene le stime percentuali di appartenenza alle classi e ne sceglie quella maggiore.
+\end{itemize}
+
+A tutti i dense layer è stata usata la funzione di attivazione ReLU (Rectified Linear Unit) \cite{relu}, la funzione più utilizzata nelle reti neurali profonde grazie alla sua capacità di non saturare il gradiente. Inoltre ogni dense layer utilizza anche una regolarizzazione L2 con $\alpha = 0.1$. La regolarizzazione L2, chiamata anche \textit{ridge regression}, viene utilizzata per penalizzare i pesi troppo grossi, evitando quindi fenomeni di overfitting \cite{l1l2}. La funzione obiettivo va a minimizzare la \textit{sparse categorical crossentropy loss}, funzione di errore utilizzata nelle classificazioni multi-classe \cite{loss}.
+La funzione di ottimizzazione adottata è stata \textit{Adam} \cite{kingma2014adam} la quale, grazie alle proprietà adattive, riesce a trovare i punti di minimo in maniera molto rapida sfruttando il momentum nella discesa del gradiente. Per stimare il learning rate ottimale è stato utilizzato un algoritmo di ricerca: si effettua un training basato su 5 epoche e si aumenta ad ogni iterazione il learning rate in maniera esponenziale, in un range da 0.0001 ed 1. Il learning rate ottimale risulta quello che consente alla loss di scendere in maniera più ripida. In figura \ref{fig:lr-find} è possibile osservare un esempio del grafico ottenuto dal processo di ricerca descritto.
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.65]{img/lr-finder.png}
+    \caption{Grafico raffigurante la curva di loss ottenuta dall'algoritmo di ricerca del learning rate ottimale. Nel esempio specifico il risultato finale è stata del valore di 0.0006.}
+    \label{fig:lr-find}
+\end{figure}
+
+
+Il training è stato effettuato attraverso 50 epoche, utilizzando un batch size di 32 istanze. Al fine di utilizzare il modello che ha ottenuto performance di generalizzazione migliori, vengono memorizzati solo i pesi che hanno ottenuto i valori di accuratezza migliori sul validation set.
+
+
+\subsection{Confronto Risultati}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{bibliografia.bib}
+
+
+\end{document}
