@@ -499,7 +499,7 @@ Nella fase di training dei modelli sono stati utilizzati in partenza i pesi otte
 \end{itemize}
 
 A tutti i dense layer è stata usata la funzione di attivazione ReLU (Rectified Linear Unit) \cite{relu}, la funzione più utilizzata nelle reti neurali profonde grazie alla sua capacità di non saturare il gradiente. Inoltre ogni dense layer utilizza anche una regolarizzazione L2 con $\alpha = 0.1$. La regolarizzazione L2, chiamata anche \textit{ridge regression}, viene utilizzata per penalizzare i pesi troppo grossi, evitando quindi fenomeni di overfitting \cite{l1l2}. La funzione obiettivo va a minimizzare la \textit{sparse categorical crossentropy loss}, funzione di errore utilizzata nelle classificazioni multi-classe \cite{loss}.
-La funzione di ottimizzazione adottata è stata \textit{Adam} \cite{kingma2014adam} la quale, grazie alle proprietà adattive, riesce a trovare i punti di minimo in maniera molto rapida sfruttando il momentum nella discesa del gradiente. Per stimare il learning rate ottimale è stato utilizzato un algoritmo di ricerca: si effettua un training basato su 5 epoche e si aumenta ad ogni iterazione il learning rate in maniera esponenziale, in un range da 0.0001 ed 1. Il learning rate ottimale risulta quello che consente alla loss di scendere in maniera più ripida. In figura \ref{fig:lr-find} è possibile osservare un esempio del grafico ottenuto dal processo di ricerca descritto.
+La funzione di ottimizzazione adottata è stata \textit{Adam} \cite{kingma2014adam} la quale, grazie alle proprietà adattive, riesce a trovare i punti di minimo in maniera molto rapida sfruttando il momentum nella discesa del gradiente. Per stimare il learning rate ottimale è stato utilizzato un algoritmo di ricerca: si effettua un training basato su 5 epoche e si aumenta ad ogni iterazione il learning rate in maniera esponenziale, in un range da 0.0001 ed 1. Il learning rate ottimale risulta quello che consente alla loss di scendere in maniera più ripida. In figura \ref{fig:lr-find} è possibile osservare un esempio del grafico ottenuto dal processo di ricerca descritto. Il training è stato effettuato attraverso 50 epoche, utilizzando un batch size di 32 istanze. Al fine di utilizzare il modello che ha ottenuto performance di generalizzazione migliori, vengono memorizzati solo i pesi che hanno ottenuto i valori di accuratezza migliori sul validation set. 
 
 
 
@@ -511,10 +511,135 @@ La funzione di ottimizzazione adottata è stata \textit{Adam} \cite{kingma2014ad
 \end{figure}
 
 
-Il training è stato effettuato attraverso 50 epoche, utilizzando un batch size di 32 istanze. Al fine di utilizzare il modello che ha ottenuto performance di generalizzazione migliori, vengono memorizzati solo i pesi che hanno ottenuto i valori di accuratezza migliori sul validation set.
+La libreria utilizzata per implementare il codice \textit{Python} per l'addestramento delle reti è stata \textit{TensorFlow} \cite{tensorflow}, una delle librerie principali relative allo sviluppo di modelli di Deep Learning. I notebook contenenti i training dei modelli sono stati eseguiti sulla piattaforma \textit{Kaggle}\footnote{\url{https://www.kaggle.com/}}, utilizzando le seguenti specifiche hardware:
+\begin{itemize}
+    \item \textbf{CPU:} Intel(R) Xeon(R) CPU @ 2.30GHz;
+    \item \textbf{RAM:} 12GB;
+    \item \textbf{GPU:} NVIDIA TESLA P100 16GB.
+\end{itemize}
+
+
+
+In figura \ref{fig:train-CNN} è possibile osservare le metriche di accuratezza e loss durante la fase di addestramento, relative agli insiemi di training e di validation. Si nota come sia presente overfitting sul training set, pur avendo attuato diversi tipi di regolarizzazioni per evitarlo. Questo è dovuto alla complessità ed al gran numero di parametri delle reti utilizzate. Per far fronte a questo problema si sono utilizzati solo i pesi che hanno ottenuto i migliori punteggi di accuratezza sul validation set, come descritto in precedenza. La metrica di loss invece decresce in maniera netta per entrambi i modelli.
+
+
+
+\begin{figure}[h]
+\centering
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/Acc-EffNet.png}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/Acc-MobileNet.png}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/Loss-effnet.png}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/Loss-mobile.png}
+	\end{subfigure}
+	\quad
+\caption{Performance delle reti CNN durante il training.}
+\label{fig:train-CNN}
+\end{figure}
 
 
 \subsection{Confronto Risultati}
+
+Le performance ottenute durante l'addestramento non sono sufficienti a valutare il modello. E' necessario utilizzare un ulteriore insieme di dati, chiamato test set, per osservare come il modello si comporta su dati che non ha mai visto in precedenza. E' importante fare questa ulteriore verifica per avere la certezza che la rete abbia delle buone performance nel mondo reale, ovvero che abbia la giusta capacità di generalizzare. Pertanto la valutazione dei risultati è stata effettuata sul test set. Le performance sono visibili in tabella \ref{tab2}.
+
+
+
+\begin{table}[h]
+\caption{Performance delle reti CNN.}
+\label{tab2}
+\centering
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Modello} &  \textbf{Accuratezza} & \textbf{F-score}  & \textbf{Tempo Medio di Training per Epoca}\\
+\hline
+\textbf{EfficientNet-B3} &  0.69  & 0.67 & 90s\\
+\textbf{MobileNetV3} &  0.60 & 0.60 & 32s\\
+\hline
+\end{tabular}
+\end{table}
+
+\newpage
+
+Come mostrato in tabella \ref{tab2}, il modello basato sulla rete MobileNet V3 ha un leggero deficit in accuratezza, rispetto la rete EfficientNet-B3. Tuttavia il modello basato su MobileNet ha un tempo medio di training per ogni epoca di quasi un terzo rispetto la controparte. Idealmente, l'applicazione contenente il sistema di raccomandazione, di cui si effettua lo studio, dovrebbe avere la capacità di essere eseguita su dispositivi mobili, quindi con carenza di capacità hardware. Diventa quindi importante considerare l'aspetto relativo alla leggerezza del modello e pertanto la scelta del modello finale cade sulla rete basata su MobileNet, di cui il trade-off tra velocità e performance è risultato favorevole. 
+
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.65]{img/CM-MobileNet.png}
+    \caption{Grafico raffigurante matrice di confusione ottenuta sul test set dal modello MobileNetV3.}
+    \label{fig:cnn-loss}
+\end{figure}
+
+
+Un ulteriore dettaglio relativo all'accuratezza è visibile in figura \ref{fig:cnn-loss} in cui viene mostrata la matrice di confusione relativa a MobileNetV3. Si nota come la diagonale risulta marcata e quindi la maggior parte delle predizioni risulta corretta per ogni classe. Sono visibili alcuni falsi positivi rispetto la classe alto arousal e valence positiva, causati da un leggero sbilanciamento dei dati rispetto a quella specifica etichetta. Nel complesso il risultato è accettabile.
+
+
+
+
+\newpage
+
+\section{Long Short-Term Memory}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
