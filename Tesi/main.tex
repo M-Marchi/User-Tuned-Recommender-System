@@ -403,7 +403,7 @@ L'obiettivo del lavoro è quello di creare un sistema di raccomandazione basato 
 
 \section{Convolutional Neural Network}
 
-La prima rete impiegata nel modello di riconoscimento emozionale è una rete 3D CNN. Tale rete è capace di riconoscere i pattern caratteristici e le feature rilevanti degli spettrogrammi di Mel, rispetto alle classi emozionali di appartenenza. La rete è definita 3D perché, oltre a ragionare sulle dimensioni di frequenza e tempo, riesce ad osservare anche il colore dello spettrogramma e quindi a capirne l'ampiezza. Com'è stato possibile notare in figura \ref{fig-spectrogram}, gli spettrogrammi differiscono visivamente quando il mood associato alla canzone è diverso, dunque la rete impara a riconoscere tali differenze.
+La prima rete impiegata nel modello di riconoscimento emozionale è una 3D CNN. Tale rete è capace di riconoscere i pattern caratteristici e le feature rilevanti degli spettrogrammi di Mel, rispetto alle classi emozionali di appartenenza. La rete è definita 3D perché, oltre a ragionare sulle dimensioni di frequenza e tempo, riesce ad osservare anche il colore dello spettrogramma e quindi a capirne l'ampiezza. Com'è stato possibile notare in figura \ref{fig-spectrogram}, gli spettrogrammi differiscono visivamente quando il mood associato alla canzone è diverso, dunque la rete impara a riconoscere tali differenze.
 Al fine di ottenere performance soddisfacenti sono state analizzate due reti neurali convoluzionali pre-addestrate con performance allo stato dell'arte nel task \textit{ImageNet.} Le reti analizzate presentano sostanziali differenze architetturali, così da scegliere empiricamente quella più adatta ai fini del progetto. Le reti prese in esame sono: \textit{EfficientNet-B3} \cite{tan2019efficientnet} e \textit{MobileNetV3-Large} \cite{howard2019searching}.
 
 \newpage
@@ -581,11 +581,11 @@ Come mostrato in tabella \ref{tab2}, il modello basato sulla rete MobileNet V3 h
     \centering
     \includegraphics[scale=0.65]{img/CM-MobileNet.png}
     \caption{Grafico raffigurante matrice di confusione ottenuta sul test set dal modello MobileNetV3.}
-    \label{fig:cnn-loss}
+    \label{fig:cnn-cm}
 \end{figure}
 
 
-Un ulteriore dettaglio relativo all'accuratezza è visibile in figura \ref{fig:cnn-loss} in cui viene mostrata la matrice di confusione relativa a MobileNetV3. Si nota come la diagonale risulta marcata e quindi la maggior parte delle predizioni risulta corretta per ogni classe. Sono visibili alcuni falsi positivi rispetto la classe alto arousal e valence positiva, causati da un leggero sbilanciamento dei dati rispetto a quella specifica etichetta. Nel complesso il risultato è accettabile.
+Un ulteriore dettaglio relativo all'accuratezza è visibile in figura \ref{fig:cnn-cm} in cui viene mostrata la matrice di confusione relativa a MobileNetV3. Si nota come la diagonale risulta marcata e quindi la maggior parte delle predizioni risulta corretta per ogni classe. Sono visibili alcuni falsi positivi rispetto la classe alto arousal e valence positiva, causati da un leggero sbilanciamento dei dati rispetto a quella specifica etichetta. Nel complesso il risultato è accettabile.
 
 
 
@@ -595,40 +595,128 @@ Un ulteriore dettaglio relativo all'accuratezza è visibile in figura \ref{fig:c
 \section{Long Short-Term Memory}
 
 
+La seconda rete impiegata nel modello di riconoscimento emozionale è una LSTM. Una volta che la rete CNN è stata addestrata a riconoscere le feature rilevanti dalle immagini raffiguranti gli spettrogrammi di Mel è possibile utilizzarla come feature extractor. La rete LSTM sarà quindi usata come nuovo classificatore del modello finale. Questi modelli sono vastamente utilizzati in task di riconoscimento musicale grazie alla loro capacità di processare informazioni sequenziali \cite{hochreiter1997long}. Al fine di analizzare una porzione di canzone di una lunghezza media, ossia non troppo lunga ma nemmeno eccessivamente frammentata, è stato deciso di utilizzare, come input alla rete, frame audio di 24 secondi. Per ottenere questa lunghezza si generano 4 spettrogrammi, relativi a 6 secondi ciascuno, e vengono utilizzati come input della rete CNN: le feature estratte in output subiranno un reshape dell'array per essere considerate un singolo input, di quattro sequenze, per la rete LSTM. E' possibile osservare il processo appena descritto raffigurato in maniera schematica in figura \ref{fig:lstm-feature}.
+
+\vspace{2cm}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.52]{img/LSTM-Training.png}
+\caption{Le feature sono estratte usando la rete CNN ed utilizzate come singolo input di 4 sequenze per la LSTM.}
+\label{fig:lstm-feature}
+\end{figure}
+
+\newpage
 
 
+\subsection{Addestramento}
+
+L'architettura della rete LSTM è formata da:
+\begin{itemize}
+    \item 128 LSTM hidden units con funzione di attivazione ReLU;
+    
+    \item Dropout layer con dropout rate di 0.2;
+    
+    \item Dense layer di 4 output, con funzione di attivazione softmax.
+    
+\end{itemize}
+
+La funzione obiettivo minimizza la \textit{categorical sparse crossentropy loss}. Viene utilizzata come funzione di ottimizzazione \textit{RMSProp} \cite{tieleman2012rmsprop} poiché presente empiricamente migliori performance quando applicata a reti LSTM. L'addestramento è effettuato utilizzando 20 epoche e una batch size di 32 istanze. Anche in questo caso si andranno ad utilizzare come modello finale i pesi che hanno ottenuto il migliore punteggio di accuratezza sul validation set. Per l'esecuzione del notebook è stato sempre utilizzato \textit{Kaggle}, con le specifiche elencate nello scorso capitolo. E' possibile osservare in figura \ref{fig:train-LSTM} le performance ottenute nelle varie epoche, utilizzando le feature ottenute dalla rete MobileNetV3.
+
+\begin{figure}[h]
+\centering
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/LSTM-accuracy.png}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/LSTM-Loss.png}
+	\end{subfigure}
+	\quad
+\caption{Performance della rete LSTM durante il training.}
+\label{fig:train-LSTM}
+\end{figure}
 
 
+I risultati ottenuti nel training migliorano nettamente i risultati ottenuti tramite l'utilizzo della sola rete CNN. E' possibile notare tuttavia un inizio di overfitting, visibile dalla divergenza delle due curve nella crescita di accuratezza. La loss invece decresce e rimane stabile per entrambi i set.
+
+\newpage
+
+\subsection{Risultati}
+
+La rete LSTM raggiunge ottimi risultati anche in fase di testing, raggiungendo uno valore di accuratezza e F-score di 91\%. La matrice di confusione, mostrata in figura \ref{fig:LSTM-cm}, mostra come quasi tutte le classificazioni sono effettuate con successo. I risultati sono in linea con quelli ottenuti dagli studi citati nel capitolo relativo allo stato dell'arte. Il modello dimostra di essere capace di generalizzare in maniera efficace, pertanto risulta utilizzabili ai fini del sistema di raccomandazione.
+
+\vspace{2cm}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[scale=0.7]{img/confusion-matrix-lstm.png}
+    \caption{Grafico raffigurante matrice di confusione ottenuta sul test set dal modello LSTM, basato sulle feature estratte da MobileNetV3.}
+    \label{fig:LSTM-cm}
+\end{figure}
 
 
+\chapter{User-Tuning}
 
 
+Nello scorso capitolo è stato trattato come si è arrivati ad ottenere un modello di deep learning, in ambito MER, per la classificazione delle emozioni partendo da spettrogrammi di Mel. I risultati ottenuti sui dataset di partenza sono stati incoraggianti e le percentuali di accuratezza rilevate dimostrano che il modello riesca a riconoscere correttamente le emozioni. Questo modello risolve uno dei principali problemi dei sistemi di raccomandazione precedentemente citati, ovvero il cold start. Grazie ad esso si potrà avere una stima, e quindi un'etichetta, subito dopo che una canzone è stata rilasciata, consentendo al sistema di effettuare le raccomandazioni anche senza tag espliciti degli utenti. Inoltre un utente appena iscritto alla piattaforma può usufruire fin da subito delle raccomandazioni per mood, basandosi sul modello generale. Tuttavia le emozioni sono per loro natura soggettive, dunque il modello creato non è capace di riconoscere questa soggettività intrinseca nel problema: risulterà invece ottimo nella generalizzazione del task, ovvero nel trovare quale emozioni sia verosimilmente più probabile rispetto alle altre. Esistono però utenti che hanno percezioni completamente fuori dall'ordinario: ad esempio chi usufruisce unicamente di musica metal è più probabile che tenderà a reputare noiose canzoni commerciali, rispetto a chi invece ascolta quella tipologia di musica. Pertanto il modello generale non è altro che una base di partenza ed è necessario far sì che per ogni utente si crei una rete capace di considerare la soggettività dell'individuo, imparando a riconoscere le emozioni nello stesso modo in cui l'utente le percepisce. In deep learning quando si parte da un modello generale e lo si raffina in uno più specifico si parla di fine-tuning, tuttavia ai fini del lavoro proposto è stato coniato il termine "\textit{user-tuning}", sottolineando che il processo di fine-tuning è effettuato su ogni singolo utente. L'idea è stata quella di simulare un'applicazione reale, nella quale ogni utente può decidere di esprimere in maniera esplicita la sua percezione emotiva rispetto ad un ascolto. Il modello imparerà dunque a capire il modo in cui l'utente percepisce la musica, basandosi su ognuna delle emozioni da esso indicate. 
+
+\newpage
 
 
+\section{Modello User-Tuned}
 
 
+Il modello user-tuned nasce sulla base della rete generale addestrata nel capitolo precedente: essa sarà il modello il partenza su cui si andrà a fare fine-tuning su ogni utente. Nello specifico si parte dalla rete CNN MobileNetV3, usata come feature extractor, e la rete LSTM come classificatore. I pesi utilizzati nel modello sono quelli che hanno ottenuto il miglior punteggio di accuratezza nel validation set, ovvero quelli che riescono meglio a generalizzare.
+
+Si può pensare allo user-tunign come un sistema di Fedetated Learning (FL) \cite{li2020federated}, in cui si passa da una rete unica centralizzata ad un paradigma decentralizzato, dove ogni utente possiede una copia privata del modello, chiamato meta-modello \cite{vanschoren2019meta}, basato su dati di cui esso è proprietario. \\
+
+Per effettuare una prova sperimentale e verificare in maniera empirica se il modello user-tuned riesca davvero ad adattarsi ai singoli utenti, è stato creato un nuovo dataset contenente 50 canzoni scelte in maniera tale da ricoprire il maniera più organica ed eterogenea possibile differenti generi musicali. La lunghezza media finale dei file audio è di 280 secondi. I titoli sono stati selezionati tra le canzoni più ascoltate relative ai diversi generi di riferimento. I generi includono: rock, metal, punk, pop, commerciale, indie, rap, jazz, blues e cantautorato italiano. L'esperimento è stato eseguito su 3 utenti, alla quale sono state fatte ascoltare tutte le canzoni e fatte etichettare rispetto alla loro emozione predominante all'ascolto. Ogni canzone è stata etichettata utilizzando la notazione valence-arousal descritta nel capitolo 4. Il soggetto poteva inoltre indicare 10 e 20 canzoni di cui voleva che il modello fosse a conoscenza della sua percezione emotiva, così da poter effettuare il fine-tuning.
+
+\subsection{Addestramento}
+
+Partendo dai file musicali etichettati dall'utente e resi espliciti alla rete, l'addestramento del modello user-tuned è la seguente. Vengono generati gli spettrogrammi di Mel corrispondenti all'intera canzone, suddivisi in frame di 6 secondi ciascuno, ovvero la lunghezza su cui la CNN è stata addestrata ad estrarre le feature rilevanti. Tali immagini sono dunque etichettate con l'emozione suggerita dall'utente e aggiunti al dataset originale ottenuto nel capitolo 4, su cui si è effettuato il traning del modello generale. Il modello subirà un processo di fine-tuning con questo nuovo dataset esteso, ricavando le feature dalla CNN ed addestrando il classificatore LSTM sul nuovo insieme di dati, utilizzando un learning rate estremamente piccolo (0.000001) ed attraverso 50 epoche. Il valore del learning rate è stato scelto empiricamente con lo scopo di evitare un eccessivo cambio di pesi durante il traning, generando un'eccessiva variazione del modello ed esponendolo ad un overfitting fuori controllo. In questo modo si avrà un nuovo modello capace di adattarsi all'utente mantenendo l'abilità di generalizzare. Lo scopo principale di questa fase è infatti quella di generare un overfitting "controllato", così da spingere il modello ad imparare le percezioni dello specifico utente. Al fine di ottenere questo effetto sono stati utilizzati i nuovi spettrogrammi etichettati aggiunti al dataset originale anche come validation set, così da poter verificare che il modello abbia imparato correttamente a classificare le canzoni rispetto alla percezione soggettiva dell'utente. Anche in questo caso il modello finale utilizzerà i pesi che hanno ottenuto il valore di accuratezza migliore sul validation set. Uno schema riassuntivo del processo descritto è visibile in figura \ref{fig:summary-user-tuning}.
+
+\vspace{1cm}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.55]{img/finetuning-process.png}
+\caption{Schema riassuntivo del processo di user-tuning.}
+\label{fig:summary-user-tuning}
+\end{figure}
+
+\vspace{0.5cm}
+
+ Com'è possibile osservare in figura \ref{fig:train-user-tuning} i risultati ottenuti sono ottimi, sia in termini di accuratezza che di loss. Applicando questa strategia, in fase di training il risultato raggiunto è di un'accuratezza di 89\% sul validation set.
+
+\vspace{0.5cm}
+
+\begin{figure}[h]
+\centering
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/user-tuning-accuracy.png}
+	\end{subfigure}
+	\quad
+	\begin{subfigure}[t]{.45\textwidth}
+	\centering
+    \includegraphics[scale = 0.5]{img/user-tuning-loss.png}
+	\end{subfigure}
+	\quad
+\caption{Performance della rete user-tuned durante il training.}
+\label{fig:train-user-tuning}
+\end{figure}
 
 
+\newpage
+
+\subsection{Valutazione dei Risultati}
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Il modello proposto in questo lavoro è stato valutato utilizzando il nuovo dataset di 50 canzoni. La valutazione viene effettuata attraverso le informazioni suggerite dai 3 soggetti impiegati nell'ascolto ed annotazione delle emozioni percepite.
 
 
 
