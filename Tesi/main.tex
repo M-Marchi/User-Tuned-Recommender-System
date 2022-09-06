@@ -12,8 +12,9 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{capt-of}
-
-
+\usepackage{rotating}
+\usepackage{floatpag}
+\usepackage{pdflscape}
 
 
 
@@ -106,13 +107,13 @@ Per addestrare una rete CNN è necessario avere un dataset abbastanza numeroso e
 
 La famiglia di reti neurali specializzate nel processare dati sequenziali è chiamata Recurrent Neural Network (RNN) \cite{rumelhart1985learning}. Queste reti vengono chiamate ricorrenti perché elaborano i dati come sequenze ed ogni output dipende dalla computazione dello stato precedente. La sotto-classe delle RNN più utilizzata al giorno d'oggi è quella chiamata Long Short-Term Memory (LSTM)\cite{hochreiter1997long}. Tale rete è formata da diversi stati interni e \textit{gate} che consentono di controllare il flusso delle informazioni. I gate inoltre consentono al modello di dimenticarsi delle informazioni di poco rilievo, mantenendo solo quelle rilevanti. Nel dettaglio una rete LSTM è composta dai seguenti componenti:
 \begin{itemize}
-    \item Cell State: prende in input l'output della sequenza precedente e, in base ai gate, mantiene o cancella tale informazione;
+    \item \textbf{Cell State}: prende in input l'output della sequenza precedente e, in base ai gate, mantiene o cancella tale informazione;
     
-    \item Forget Gate: utilizza una funzione sigmoide, prende in input la concatenazione dell'output della sequenza precedente e l'input della sequenza attuale, determinando se l'informazione vecchia debba essere mantenuta o cancellata;
+    \item \textbf{Forget Gate}: utilizza una funzione sigmoide, prende in input la concatenazione dell'output della sequenza precedente e l'input della sequenza attuale, determinando se l'informazione vecchia debba essere mantenuta o cancellata;
     
-    \item Input Gate: determina se l'input della sequenza attuale verrà aggiunto al cell state;
+    \item \textbf{Input Gate}: determina se l'input della sequenza attuale verrà aggiunto al cell state;
     
-    \item Output Gate: lo stato finale del cell state viene filtrato da una tangente ($-1,1$), determinando il nuovo output.
+    \item \textbf{Output Gate}: lo stato finale del cell state viene filtrato da una tangente ($-1,1$), determinando il nuovo output.
     
 \end{itemize}
 La struttura di una rete LSTM è mostrata in figura \ref{fig:lstm}.
@@ -175,11 +176,11 @@ Un problema noto dei sistemi di raccomandazione è chiamato cold start \cite{re-
 
 Batmaz \textit{et al.} \cite{deep-re-sys-survey} hanno effettuato uno studio comparativo dei diversi sistemi di raccomandazione, in dominio musicale, presenti in letteratura. Tale studio ha evidenziato le tipologie differenti di dati utilizzati e le ha classificate in tre diverse categorie: segnali audio, informazioni content-based e valutazioni ed utilizzo. In figura \ref{fig:musical-RS} è possibile osservare uno schema rappresentante la scelta delle feature utilizzate in 9 studi di recommender system in ambito musicale. Si osserva come quasi la totalità degli studi utilizzano le valutazioni e gli ascolti per effettuare la raccomandazione e solo in alcuni casi si associano questi dati ai segnali audio o alle informazioni content-based. Un limite di questi studi risulta però è proprio quello di non considerare le emozioni nell'effettuare raccomandazioni agli utenti, ignorando i relativi vantaggi.
 
-
+\vspace{1cm}
 
 \begin{figure}[h!]
 	 	\centering
-	 	\includegraphics[scale = 0.75]{img/survery-RS.png}
+	 	\includegraphics[scale = 0.86]{img/survery-RS.png}
 	 	\caption{Distribuzione tipologie di dati utilizzati come feature su 9 studi riguardanti RS in ambito musicale.\cite{deep-re-sys-survey}}
 	 	\label{fig:musical-RS}
 \end{figure}
@@ -716,7 +717,157 @@ Partendo dai file musicali etichettati dall'utente e resi espliciti alla rete, l
 \subsection{Valutazione dei Risultati}
 
 
-Il modello proposto in questo lavoro è stato valutato utilizzando il nuovo dataset di 50 canzoni. La valutazione viene effettuata attraverso le informazioni suggerite dai 3 soggetti impiegati nell'ascolto ed annotazione delle emozioni percepite.
+Il modello proposto in questo lavoro è stato valutato utilizzando il nuovo dataset di 50 canzoni. La valutazione viene effettuata attraverso le informazioni suggerite dai 3 soggetti impiegati nell'ascolto ed annotazione delle emozioni percepite. Gli esperimenti effettuati per ogni soggetto sono 3:
+\begin{itemize}
+    \item 0 emozioni suggerite: si utilizzano le 50 annotazioni dell'utente sul modello finale ottenuto senza user-tuning. Risulta importante effettuare questa valutazione al fine di verificare come il modello generale si comporta in una casistica di uso reale;
+    
+    \item 10 emozioni suggerite: si addestra il modello su solamente 10 delle 50 etichette totali, utile per osservare come il modello si comporta basandosi su pochi suggerimenti dell'utente;
+    
+    \item 20 emozioni suggerite: si addestra il modello su 20 delle 50 etichette totali. Questo esperimento valuta come il modello si adatti all'utente con un numero modesto di suggerimenti. E' atteso un miglioramento all'accuratezza del modello rispetto alle altre casistiche.
+\end{itemize}
+
+Per effettuare questi esperimenti ogni canzone è stata suddivisa in frame da 24 secondi ed ognuno di essi è stato classificato attraverso la rete LSTM. Ogni frame avrà quindi una predizione del modello: l'etichetta finale trovata, rispetto ad ogni canzone, sarà data dalla predizione che otterrà maggior frequenza rispetto alle 4 classi emozionali utilizzate. Così facendo per ogni canzone si otterrà non solo una singola stima emozionale, ma una lista con le percentuali di frequenza rispetto a tutte le classi, come mostrato in figura \ref{fig:prediction-user-tuning}. Questo risulta molto utile per fare distinzioni tra due canzoni che hanno una stessa classe emozionale: alcune avranno una percentuale più alta dell'etichetta finale rispetto ad altre, potendo quindi fare ulteriori distinzioni al momento della raccomandazione. Questo argomento verrà trattato in maniera più estesa nella sezione successiva, relativa al sistema di raccomandazione e generazione playlist proposto.
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.9]{img/user-tuning-prediction.PNG}
+\caption{Esempio di output del modello relativo al file con ID = 04. Vengono mostrate le predizioni relative ai frame di 24 secondi ed infine la stima percentuale per ogni classe emozionale.}
+\label{fig:prediction-user-tuning}
+\end{figure}
+
+
+\newpage
+
+\begin{figure}
+\centering
+\includegraphics[scale = 0.5]{img/evaluation.png}
+\caption{Diagramma dell'algoritmo di classificazione del modello user-tuned, applicato all'intero dataset di canzoni.}
+\label{fig-user-evaluation}
+\end{figure}
+
+\vspace{1cm}
+
+Dopo aver compilato un file \textit{csv} per ogni esperimento svolto, annotando tutte le etichette trovate dai soggetti, è stato creato uno script Python che, preso in input la cartella contenente le 50 canzoni ed il file \textit{csv}, esegue i seguenti step:
+
+\begin{enumerate}
+    \item Per ogni file audio nella directory genera dei spettrogrammi di Mel, relativi alla durata di 6 secondi ciascuno;
+    
+    \item Le feature rilevanti sono estratte dalla rete CNN MobileNetV3 considerando 4 spettrogrammi ad ogni iterazione, relativi a 24 secondi totali;
+    
+    \item Le feature ottenute dai 4 spettrogrammi subiscono una trasformazione in un singolo vettore contenente i 4 vettori di feature: questo passaggio è necessario per essere considerati un singolo input di 4 sequenze per la rete LSTM;
+    
+    \item  La rete LSTM genera diverse predizioni, una per ogni sequenza della lunghezza di 24 secondi;
+    
+    \item Una stima percentuale di tutte le predizioni effettuate, rispetto ad una canzone, viene memorizzata. Tale stima mostra i vari mood che cambiano all'interno di una canzone. Il mood che ottiene la percentuale maggiore verrà selezionato come classe finale. Nel caso una canzone abbia due valori con la stessa stima percentuale come maggioritari ne verrà selezionato solo uno.
+    
+    
+\end{enumerate}
+
+Un diagramma dell'algoritmo descritto è visibile in figura \ref{fig-user-evaluation}.
+
+
+\newpage
+
+Al fine di valutare le performance del modello user-tuned non basta utilizzare semplicemente l'accuratezza, basata sulla stima dell'emozione più frequente. E' stato ritenuto opportuno introdurre una nuova metrica di errore, per quantificare la distanza tra la stima ottenuta come risultato della classificazione e l'emozione reale annotata dal soggetto, nel caso le due etichette divergano. Questa metrica stabilisce quanto il modello si è sbagliato nell'effettuare la predizione: un valore alto (100) significa che la stima dell'emozione annotata dall'utente è stata 0, ovvero non è stata mai rilevata nella canzone. D'altro canto un valore basso (minore di 25) significa che, anche se l'emozione non è stata trovata correttamente, il modello non ha sbagliato di molto. Tale stima è quindi calcolata come la differenza tra la frequenza dell'emozione predetta (quella che ha ottenuto il valore maggiore) e la frequenza della vera classe emozionale del soggetto. Una volta ottenute tutte le stime di errore è stato possibile calcolare l'errore medio totale del modello. E' stata utilizzata la seguente formula:
+\begin{equation}
+\begin{multlined}
+\forall_i: \text{ wrong emotion}_i > \text{true emotion}_i: \\
+\frac{1}{n  = \text{Number Wrong Predictions}} \sum_{i}^n \text{wrong emotion}_i - \text{true emotion}_i
+\end{multlined}
+\end{equation}
+
+
+Un errore medio alto significa che il modello non sta performando bene, inoltre grazie a questa metrica è possibile valutare come la rete si comporta aumentando il numero di canzoni suggerite nel processo di user tuning. La figura \ref{fig-output} mostra un esempio di output, relativo a 5 canzoni (righe nella tabella) del classificatore user-tuned, in termini di frequenza di ogni classe emozionale, la corrispondente classe predetta dal classificatore (colonna Max\_Overall\_Emotion), comparata alla vera etichetta (User\_Emotion) ed in fine la metrica di errore proposta (Difference).
+
+
+
+\begin{figure}
+\centering
+\includegraphics[scale = 0.62]{img/example-output.PNG}
+\caption{Esempio del risultato ottenuto su 5 canzoni dopo l'esecuzione del modello. Le prime 4 colonne corrispondono alle stime percentuali dei quadranti di Russell. La colonna \textit{Max\_Overall\_Emotion} corrisponde alla classe emozionale con la frequenza rilevata più elevata. La \textit{User\_Emotion} rappresenta l'etichetta annotata dal soggetto. Nel caso le due colonne non contengano lo stesso valore l'errore (\textit{Difference}) è calcolato.}
+\label{fig-output}
+\end{figure}
+
+\newpage
+
+
+Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, è riportato rispettivamente nelle tabelle 6.1 e \ref{tab4}. I risultati sono visibili in forma grafica nelle figure \ref{fig-data1} e \ref{fig-data2}. 
+
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.9]{img/grafico-tab3.png}
+\caption{Grafico risultati ottenuti basati sui tre soggetti.}
+\label{fig-data1}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.9]{img/grafico-tab4.png}
+\caption{Grafico risultati medi ottenuti per configurazione.}
+\label{fig-data2}
+\end{figure}
+
+
+
+\newpage
+
+\begin{sidewaystable}[ph!]
+\thisfloatpagestyle{empty}
+\label{tab3}
+\caption{Valutazione basata sui tre soggetti.}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+ \textbf{Soggetto} & \textbf{User-Tuning} &  \textbf{Classificazioni Corrette} & \textbf{Accuratezza \%}  & \textbf{Media Differenza Errore}\\
+\hline
+&0 Emozioni Suggerite &  24  & 0.48 & 40.03\\
+ \textbf{1}&10 Emozioni Suggerite &  36   & 0.72 & 34.92 \\
+&20 Emozioni Suggerite &  41   & 0.82 & 25.29\\
+\hline
+&0 Emozioni Suggerite &  23  & 0.46 & 47.73\\
+ \textbf{2}&10 Emozioni Suggerite &  31  & 0.62 & 37.88\\
+&20 Emozioni Suggerite &  38  & 0.76 & 31.80\\
+\hline
+&0 Emozioni Suggerite &  20  & 0.40 & 45.83\\
+ \textbf{3}&10 Emozioni Suggerite &  27  & 0.54 & 32.20\\
+&20 Emozioni Suggerite &  35  & 0.70 & 34.43\\
+
+\hline
+\end{tabular}
+
+\vspace{1cm}
+
+\caption{Valori medi per ogni configurazione.}
+\label{tab4}
+
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{User-Tuning} &  \textbf{Classificazioni Corrette} & \textbf{Accuratezza \%}  & \textbf{Media Differenza Errore}\\
+\hline
+\textbf{0 Emozioni Suggerite} &  22.34  & 0.45 & 44.62\\
+\hline
+\textbf{10 Emozioni Suggerite} &  31.33  & 0.63 & 35\\
+\hline
+\textbf{20 Emozioni Suggerite} &  38  & 0.76 & 30.51\\
+\hline
+\hline
+\end{tabular}
+\end{sidewaystable}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
