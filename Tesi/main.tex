@@ -16,7 +16,24 @@
 \usepackage{floatpag}
 \usepackage{pdflscape}
 
+\newcommand\frontmatter{%
+    \cleardoublepage
+  %\@mainmatterfalse
+  \pagenumbering{Roman}}
 
+\newcommand\mainmatter{%
+    \cleardoublepage
+ % \@mainmattertrue
+  \pagenumbering{arabic}}
+
+\newcommand\backmatter{%
+  \if@openright
+    \cleardoublepage
+  \else
+    \clearpage
+  \fi
+ % \@mainmatterfalse
+   }
 
 
 
@@ -24,6 +41,8 @@
 \geometry{a4paper, top=4cm, bottom=4cm, left=3.7cm, right=3.7cm}
 
 \begin{document}
+
+\frontmatter
 
 \title{Tesi Magistrale}
 
@@ -48,8 +67,15 @@ Da scrivere
 
 \tableofcontents
 
+\listoffigures
+\begingroup
+\let\clearpage\relax
+\listoftables
+\endgroup
 
 \newpage
+
+\mainmatter
 
 \chapter{Introduzione}
 
@@ -86,7 +112,7 @@ Una Convolutional Neural Network rappresenta un'architettura di rete neurale pro
     %\hspace{-1cm}
     \centering
     \includegraphics[scale = 0.3]{img/cnn.png}
-    \caption{Struttura di una rete neurale convoluzionale.\footnotemark}
+    \caption[Struttura di una rete neurale convoluzionale.]{Struttura di una rete neurale convoluzionale.\footnotemark}
     \label{fig:cnn}
 \end{figure}
 
@@ -123,7 +149,7 @@ La struttura di una rete LSTM è mostrata in figura \ref{fig:lstm}.
     %\hspace{-1cm}
     \centering
     \includegraphics[scale = 0.7]{img/lstm.png}
-    \caption{Struttura a gate di una rete LSTM.\footnotemark}
+    \caption[Struttura a gate di una rete LSTM.]{Struttura a gate di una rete LSTM.\footnotemark}
     \label{fig:lstm}
 \end{figure}
 
@@ -141,7 +167,7 @@ Diversi ricercatori e psicologi hanno definito alcuni modelli per classificare l
     %\hspace{-1cm}
     \centering
     \includegraphics[scale = 0.15]{img/Plutchik-wheel.svg.png}
-    \caption{\textit{Wheel of emotions} proposta da Plutchik.\footnotemark}
+    \caption[\textit{Wheel of emotions} proposta da Plutchik.]{\textit{Wheel of emotions} proposta da Plutchik.\footnotemark}
     \label{fig:wheel}
 \end{figure}
 
@@ -173,7 +199,7 @@ Un problema noto dei sistemi di raccomandazione è chiamato cold start \cite{re-
 
 \subsection{Sistemi di Raccomandazione in Ambito Musicale}
 
-
+Il lavoro su cui si basa questa tesi riguarda un dominio specifico, ovvero quello musicale. E' importante sottolineare questo aspetto perché esistono sostanziali differenze rispetto ad altri sistemi di raccomandazione in diversi ambiti.
 Batmaz \textit{et al.} \cite{deep-re-sys-survey} hanno effettuato uno studio comparativo dei diversi sistemi di raccomandazione, in dominio musicale, presenti in letteratura. Tale studio ha evidenziato le tipologie differenti di dati utilizzati e le ha classificate in tre diverse categorie: segnali audio, informazioni content-based e valutazioni ed utilizzo. In figura \ref{fig:musical-RS} è possibile osservare uno schema rappresentante la scelta delle feature utilizzate in 9 studi di recommender system in ambito musicale. Si osserva come quasi la totalità degli studi utilizzano le valutazioni e gli ascolti per effettuare la raccomandazione e solo in alcuni casi si associano questi dati ai segnali audio o alle informazioni content-based. Un limite di questi studi risulta però è proprio quello di non considerare le emozioni nell'effettuare raccomandazioni agli utenti, ignorando i relativi vantaggi.
 
 \vspace{1cm}
@@ -791,16 +817,28 @@ Un errore medio alto significa che il modello non sta performando bene, inoltre 
 \newpage
 
 
-Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, è riportato rispettivamente nelle tabelle 6.1 e \ref{tab4}. I risultati sono visibili in forma grafica nelle figure \ref{fig-data1} e \ref{fig-data2}. 
+Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, è riportato rispettivamente nelle tabelle \ref{tab3} e \ref{tab4}. I risultati mostrano diversi aspetti importanti da considerare:
+\begin{itemize}
+    \item Per quanto riguarda il modello generale, ovvero quello non soggetto ad user-tuning, è possibile osservare che la media di accuratezza è del 45\%. Tale valore, contestualizzato in un task di classificazione multi-classe ed in contesto reale risulta più che accettabile. 
+    
+    \item In riferimento ai modelli soggetti ad user-tuning i risultati sono ottimi. Come atteso le canzoni suggerite al modello risultano sempre corrette nella classificazione. L'accuratezza, mostrata nei grafici \ref{fig-data1} e \ref{fig-data2}, ottiene un netto miglioramento all'aumentare delle canzoni suggerite. Ciò dimostra che il sistema proposto di user-tuning, valutato in un contesto reale, comporta un'esperienza utente migliore basata su un modello che impara a riconoscere le percezioni soggettive, in un costante processo di miglioramento tramite l'utilizzo del sistema. Un altro aspetto fondamentale da tenere in considerazione è la metrica di differenza errore proposta: è chiaramente visibile in figura \ref{fig-data2} come questa subisca una decrescita costante all'aumentare delle canzoni suggerite. Questo fenomeno è spiegabile come un sostanziale miglioramento nel modello non solo sulle canzoni suggerite, che quindi impara in maniera diretta a classificare correttamente, ma anche su quelle che non vengono classificate correttamente. La rete infatti, imparando le percezioni dell'utente, riesce a classificare in maniera sempre migliore anche le canzoni che non sono suggerite al modello. Questo addestramento passivo è molto importante perché consente di classificare correttamente anche nuove canzoni mai viste dal modello, senza che l'utente debba per forza indicare direttamente l'emozione provata all'ascolto.
+\end{itemize}
+
+A fronte di questi valori è possibile affermare che i risultati ottenuti risultano promettenti, tuttavia è necessario estendere lo studio ad ulteriori soggetti, al fine di determinare se, con un bacino di utenza più ampio ed eterogeneo, le performance mantengano questo livello di precisione.
+
+
+\newpage
 
 
 
 \begin{figure}[h]
 \centering
-\includegraphics[scale = 0.9]{img/grafico-tab3.png}
+\includegraphics[scale = 0.85]{img/grafico-tab3.png}
 \caption{Grafico risultati ottenuti basati sui tre soggetti.}
 \label{fig-data1}
 \end{figure}
+
+\vspace{2cm}
 
 \begin{figure}[h]
 \centering
@@ -815,8 +853,8 @@ Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, 
 
 \begin{sidewaystable}[ph!]
 \thisfloatpagestyle{empty}
-\label{tab3}
 \caption{Valutazione basata sui tre soggetti.}
+\label{tab3}
 \begin{tabular}{|c|c|c|c|c|}
 \hline
  \textbf{Soggetto} & \textbf{User-Tuning} &  \textbf{Classificazioni Corrette} & \textbf{Accuratezza \%}  & \textbf{Media Differenza Errore}\\
@@ -857,6 +895,24 @@ Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, 
 
 
 
+\chapter{Sistema di Raccomandazione}
+
+L'ultimo tassello mancante del sistema proposto in questo lavoro è quello riguardante l'utilizzo del modello creato, ovvero il sistema di raccomandazione con cui l'utente si interfaccerà. Come descritto nel capitolo relativo allo stato dell'arte dei sistemi di raccomandazione musicale la tipologia di modello adottata è quella utilizzata nei sistemi model-based: l'architettura è basata su un modello di deep learning che effettua classificazioni basate sullo specifico utente. Le feature utilizzate entrano nella tassonomia dei sistemi content-based audio analysis, ovvero quelli che utilizzano informazioni direttamente ricavate dai file audio per effettuare le predizioni. Il progetto tuttavia non ha l'obiettivo di creare un sistema di raccomandazione in ambito musicale classico, in cui l'utente può filtrare tra le sue canzoni per trovare quelle con il mood richiesto, ma fa un passo ulteriore. E' stato messo il focus su un sistema che potesse generare vere e proprie playlist basate sul mood di riferimento dell'utente. 
+
+
+\section{Generatore di Playlist}
+
+
+Nell'ambito dei sistemi di raccomandazione musicali, i generatori automatici di playlist possono essere considerati una loro sotto-categoria specializzata. Per generare una playlist infatti è necessario sfruttare un sistema di raccomandazione al fine di creare un elenco nelle corde dell'utente, che contenga ciò che esso ha voglia di ascoltare in quel momento. Una playlist non è altro che una lista di riproduzione musicale, dove i titoli generalmente appartengono ad un insieme logico scelto dall'utente. Ad esempio, esistono playlist basate sui generi musicali, sul mood delle canzoni, sulla data d'uscita nel mercato, sull'evento dove dovrà essere riprodotta e tanti altri. Nel caso relativo al progetto, la playlist da creare sarà basata sul mood delle canzoni, rilevato dal modello user-tuned. L'idea principale è stata quella di simulare un'applicazione reale, integrata in un'app mobile di riproduzione audio oppure in una delle piattaforme di streaming musicale presenti sul mercato, dove un utente può dichiarare il proprio umore di partenza e quello che vorrebbe raggiungere alla fine dell'ascolto. Il sistema genererà una playlist che avrà nelle canzoni al suo interno una graduale variazione nell'emozione suscitata nell'utente, così da consentirgli di raggiungere lo stato emotivo atteso. Un'illustrazione è mostrata in figura \ref{fig:playlist-emozioni}.
+
+
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 1.5]{img/playlist-emotion.jpg}
+\caption{Illustrazione relativa al funzionamento della playlist generata. La playlist è strutturata per far variare l'umore dell'utente durante l'ascolto.}
+\label{fig:playlist-emozioni}
+\end{figure}
 
 
 
@@ -876,23 +932,17 @@ Il risultato medio ottenuto sulle 50 canzoni, per ogni utente e configurazione, 
 
 
 
+\chapter{Conclusione}
+
+\section{Sviluppi Futuri}
 
 
 
 
+\newpage
 
 
-
-
-
-
-
-
-
-
-
-
-
+\addcontentsline{toc}{section}{Bibliografia}
 \bibliographystyle{IEEEtran}
 \bibliography{bibliografia.bib}
 
