@@ -15,6 +15,7 @@
 \usepackage{rotating}
 \usepackage{floatpag}
 \usepackage{pdflscape}
+\usepackage[toc,page]{appendix}
 
 \newcommand\frontmatter{%
     \cleardoublepage
@@ -39,6 +40,40 @@
 
 
 \geometry{a4paper, top=4cm, bottom=4cm, left=3.7cm, right=3.7cm}
+
+
+\usepackage{listings}
+\usepackage{xcolor}
+
+%New colors defined below
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+%Code listing style named "mystyle"
+\lstdefinestyle{mystyle}{
+  backgroundcolor=\color{backcolour},   commentstyle=\color{codegreen},
+  keywordstyle=\color{magenta},
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breakatwhitespace=false,         
+  breaklines=true,                 
+  captionpos=b,                    
+  keepspaces=true,                 
+  numbers=left,                    
+  numbersep=5pt,                  
+  showspaces=false,                
+  showstringspaces=false,
+  showtabs=false,                  
+  tabsize=2
+}
+
+%"mystyle" code listing set
+\lstset{style=mystyle}
+
+
 
 \begin{document}
 
@@ -903,7 +938,7 @@ L'ultimo tassello mancante del sistema proposto in questo lavoro è quello rigua
 \section{Generatore di Playlist}
 
 
-Nell'ambito dei sistemi di raccomandazione musicali, i generatori automatici di playlist possono essere considerati una loro sotto-categoria specializzata. Per generare una playlist infatti è necessario sfruttare un sistema di raccomandazione al fine di creare un elenco nelle corde dell'utente, che contenga ciò che esso ha voglia di ascoltare in quel momento. Una playlist non è altro che una lista di riproduzione musicale, dove i titoli generalmente appartengono ad un insieme logico scelto dall'utente. Ad esempio, esistono playlist basate sui generi musicali, sul mood delle canzoni, sulla data d'uscita nel mercato, sull'evento dove dovrà essere riprodotta e tanti altri. Nel caso relativo al progetto, la playlist da creare sarà basata sul mood delle canzoni, rilevato dal modello user-tuned. L'idea principale è stata quella di simulare un'applicazione reale, integrata in un'app mobile di riproduzione audio oppure in una delle piattaforme di streaming musicale presenti sul mercato, dove un utente può dichiarare il proprio umore di partenza e quello che vorrebbe raggiungere alla fine dell'ascolto. Il sistema genererà una playlist che avrà nelle canzoni al suo interno una graduale variazione nell'emozione suscitata nell'utente, così da consentirgli di raggiungere lo stato emotivo atteso. Un'illustrazione è mostrata in figura \ref{fig:playlist-emozioni}.
+Nell'ambito dei sistemi di raccomandazione musicali, i generatori automatici di playlist possono essere considerati una loro sotto-categoria specializzata. Per generare una playlist infatti è necessario sfruttare un sistema di raccomandazione al fine di creare un elenco nelle corde dell'utente, che contenga ciò che esso ha voglia di ascoltare in quel momento. Una playlist non è altro che una lista di riproduzione musicale, dove i titoli generalmente appartengono ad un insieme logico scelto dall'utente. Ad esempio, esistono playlist basate sui generi musicali, sul mood delle canzoni, sulla data d'uscita dell'album di riferimento, sull'evento dove dovrà essere riprodotta e tanti altri. Nel caso relativo al progetto, la playlist da generare sarà basata sul mood delle canzoni, rilevato dal modello user-tuned. L'idea principale è stata quella di simulare un'applicazione reale, integrata in un'app mobile di riproduzione audio oppure in una delle piattaforme di streaming musicale presenti sul mercato, dove un utente può dichiarare il proprio umore di partenza e quello che vorrebbe raggiungere alla fine dell'ascolto. Il sistema genererà una playlist che avrà nelle canzoni al suo interno una graduale variazione nell'emozione suscitata nell'utente, così da consentirgli di raggiungere lo stato emotivo atteso. Un'illustrazione è mostrata in figura \ref{fig:playlist-emozioni}.
 
 
 
@@ -913,6 +948,58 @@ Nell'ambito dei sistemi di raccomandazione musicali, i generatori automatici di 
 \caption{Illustrazione relativa al funzionamento della playlist generata. La playlist è strutturata per far variare l'umore dell'utente durante l'ascolto.}
 \label{fig:playlist-emozioni}
 \end{figure}
+
+
+\section{Integrazione Modello User-Tuned}
+
+Come descritto nel capitolo precedente, lo scopo finale di questo lavoro non è solo il dimostrare la fattibilità nel creare un modello di Deep Learning capace di riconoscere il mood delle canzoni ed adattarsi alla percezione dell'utente. L'obiettivo è infatti quello di rendere usabile tale modello in un contesto reale di utilizzo da parte di utenti. L'output generato dalla rete è stato studiato fin dal principio per essere usabile da un sistema di raccomandazione: invece di generare un unica classificazione per ogni canzone si effettua anche una stima percentuale dei mood contenuti al suo interno, come è stato possibile osservare nella figura \ref{fig-output} della sezione precedente. L'utente finale potrà quindi selezionare il suo umore di partenza e quello che vorrà raggiungere alla fine dell'ascolto della playlist e, tramite una variazione delle percentuali emozionali contenute in ogni canzone, tale passaggio di mood sarà reso guidato e mai repentino. La playlist generata partirà la riproduzione dalle canzoni che hanno una percentuale emozionale che corrisponde a quella dell'utente con valori elevati e mano a mano scenderà di percentuale lasciando spazio a quella desiderata. Questo risulta importante per non creare nell'utente un salto di umore troppo drastico: ad esempio se esso si trova in uno stato emotivo triste (basso arousal e valence negativa) e vuole raggiungere un mood felice (alto arousal e valence positiva), l'iniziare a riprodurre canzoni classificate come il target richiesto fin dall'inizio potrebbe infastidire e far terminare l'ascolto.
+
+\section{Algoritmo Progettato}
+
+Ai fini di implementare ciò che è descritto nella sezione precedente è stato sviluppato il seguente algoritmo:
+\begin{enumerate}
+
+    \item Si richiede all'utente di definire il mood attuale e quello target. Inoltre viene richiesto il numero di canzoni della quale dovrà essere composta la playlist (\textit{playlist\_length}).
+
+    \item Si verifica che il mood di partenza e quello target non coincidano: nel caso siano uguali la playlist sarà generata usando canzoni con valore percentuale elevato dell'emozione selezionata;
+    
+    \item Si inizializzano le variabili \textit{starting\_value} ed \textit{target\_value} rispettivamente a 100 e 0. Queste variabili rappresentano la stima percentuale dell'emozione di partenza dell'utente (\textit{starting\_value} = 100) e quella target da raggiungere (\textit{target\_value} = 0).
+    
+    \item Si definisce la variabile \textit{jump}, ovvero quanto dovrà aumentare la percentuale del mood target ad ogni iterazione e quanto dovrà diminuire quella attuale. La funzione per trovare il valore ottimale è definita come:
+    
+    \begin{equation}
+jump = \frac{100}{playlist\_length - 1}
+    \end{equation}
+    
+    
+    
+    \item Si definisce la funzione \textit{find\_nearest}: dato in input il dataframe contenente tutte le predizioni del modello, il valore percentuale del mood di partenza e il valore percentuale target, essa restituisce l'elemento che ha la distanza tra i due valori di input minore. Ad esempio, se in input si passano i valori di partenza = 70 e target = 30, la funzione restituisce l'elemento che ha le percentuali più vicine a i valori passati (es. partenza = 75, target = 25) tra tutti gli elementi del dataframe delle predizioni. 
+    
+    \item Si itera sulla \textit{playlist\_length} ed a ogni iterazione viene trovata la canzone con la minor distanza dai valori di riferimento tramite la funzione \textit{find\_nearest}, aumentando la percentuale target e diminuendo quello iniziale di \textit{jump}. Un esempio di output ottenuto in questa fase è visibile in figura \ref{fig:playlist1}.
+    
+    \item Si riproduce la playlist, come in figura \ref{fig:playlist2}.
+\end{enumerate}
+
+L'algoritmo, scritto in Python, nella sua interezza è visibile in appendice A.
+
+\newpage
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.95]{img/output-playlist.PNG}
+\caption{Esempio di output ottenuto con parametri \textit{starting\_mood} = A-V-, \textit{target\_mood} = A+V+ e \textit{playlist\_length} = 10.}
+\label{fig:playlist1}
+\end{figure}
+
+\vspace{2cm}
+
+\begin{figure}[h]
+\centering
+\includegraphics[scale = 0.8]{img/output-playlist-play.PNG}
+\caption{Esempio di output finale dello script, i file audio corrispondenti alle canzoni vengono riprodotti.}
+\label{fig:playlist2}
+\end{figure}
+
 
 
 
@@ -940,6 +1027,66 @@ Nell'ambito dei sistemi di raccomandazione musicali, i generatori automatici di 
 
 
 \newpage
+
+\appendix
+\chapter{Codice Python Generazione Playlist}
+%Python code highlighting
+\begin{lstlisting}[language=Python, caption=Playlist-Generator.py]
+# dati relativi alla creazione playlist, personalizzabili dall'utente
+playlist_length = 10
+starting_mood = 'A-V-'
+expected_mood = 'A-V-'
+
+# funzione che prende in input le colonne relative alla stima del mood e il valore atteso a cui esse devono avvicinarsi
+def find_nearest(array_starting, value_starting, array_target, value_target):
+    
+    # gli array contengono la differenza tra il valore reale e quello atteso
+    starting = np.abs(array_starting - value_starting)
+    target = np.abs(array_target - value_target)
+    
+    # si sommano i valori degli array
+    nearest_array = starting + target
+    
+    # l'elemento minore sara quello con i due mood combinati che piu si avvicinano all obiettivo
+    return nearest_array.argmin()
+
+# si inizializza la lista di riproduzione vuota 
+song_list = []
+
+
+if starting_mood != expected_mood: 
+    # caso nel quale l'utente vuole shiftare mood
+    jump = (100/(playlist_length-1))
+    starting_value = 100
+    expected_value = 0
+
+
+
+
+    # si itera sulla lunghezza della plylist
+    for i in range(playlist_length):
+
+        # viene trovato l'indice della canzone da aggiungere
+        idx = find_nearest(df[starting_mood].to_numpy(), starting_value, df[expected_mood].to_numpy(), expected_value)
+        
+        # alla playlist viene aggiunta la canzone
+        song_list.append(df.iloc[idx]['ID'])
+        
+        # si cancella la canzone aggiunta dal dataframe per evitare di aggiungerla due volte alla playlist
+        df = df.drop(idx)
+        
+        # l'indice del dataframe viene resettato
+        df = df.reset_index(drop=True)
+        
+        # i valori di partenza e target vengono aggiornati in base al valore del salto
+        starting_value = starting_value - jump
+        expected_value = expected_value + jump
+        
+else: # il mood dell'utente non deve cambiare, si la playlist cerca tutte le canzoni con il mood richiesto massimizzato
+    df = df.sort_values(by=[starting_mood])
+    df = df[len(df)-playlist_length:]
+    song_list = df['ID'].to_numpy()
+\end{lstlisting}
 
 
 \addcontentsline{toc}{section}{Bibliografia}
