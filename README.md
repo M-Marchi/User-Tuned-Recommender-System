@@ -1,12 +1,15 @@
-# Tesi Magistrale
+# A Fine-Tuned Playlist Recommender System Based on Emotions
 
-## TO DO
 
-* LSTM su dataset diversi
-* LSTM 10+ run
+In questo progetto di tesi viene presentato un nuovo approccio per la creazione di un sistema di raccomandazione e generazione di playlist, utilizzando modelli di Deep Learning per riconoscere le emozioni degli utenti associate alla musica. L'ambito di ricerca è definito Music Emotion Recognition (MER), sottocategoria dell’Affective Computing, branca dell’intelligenza artificiale che riconosce ed utilizza le emozioni umane.
 
-# Paper
-* Introduzione
-* State of the art
-* Proposal: diagramma flusso + frasi sintetiche
-* Results
+
+Il modello proposto è composto da diverse tipologie di reti neurali profonde. Inizialmente si utilizza una rete neurale convoluzionale (CNN), facendo uso della tecnica definita transfer learning su un’architettura allo stato dell'arte per estrarre le informazioni più rilevanti da spettrogrammi di Mel, quest’ultimi generati da file musicali. Successivamente si impiega una rete Long Short-Term Memory (LSTM) per classificare correttamente le feature estratte. Le classi emozionali esaminate corrispondono ai quattro quadranti del modello di Russell. I dataset, impiegati nella realizzazione del modello di Deep Learning, sono stati selezionati dalla letteratura di riferimento al fine di considerare multiple fonti per migliorare la generalizzazione. Il risultato di accuratezza raggiunto dal modello finale è pari al 91%.  
+
+
+È stata inoltre studiata la capacità del modello finale di adattarsi alla percezione del singolo individuo, tramite la tecnica di fine-tuning sulle emozioni soggettive di ogni utente. Questo secondo modello prende il nome di "user-tuned". L'obiettivo principale è quello di ottenere un sistema inizialmente capace di generalizzare, minimizzando l'errore nell’uso da parte di nuovi utenti, e successivamente adattarlo al singolo utente e alle sue percezioni soggettive. Tale metodologia consente di accentuare il focus sul singolo soggetto, migliorando l'esperienza di utilizzo e risolvendo uno dei problemi principali dei sistemi di raccomandazione: il cold start. Il sistema è stato testato su tre soggetti, utilizzando 50 canzoni di diverso genere, mostrando un'accuratezza nel predire correttamente le emozioni del 44.68\% per il modello generale. Il test effettuato sul modello user-tuned, considerando 10 e 20 emozioni suggerite al sistema, ha raggiungo un valore medio di predizioni corrette del 62.66% e 76% rispettivamente, migliorando fortemente i risultati ottenuti dal modello generale. I risultati empirici hanno inoltre dimostrato che il modello user-tuned riesce a perfezionare le inferenze delle canzoni non suggerite direttamente al sistema, abbassando l'errore di predizione medio.
+
+
+Infine, è stato creato un sistema di raccomandazione, il quale utilizza le informazioni ottenute dai modelli precedentemente descritti per generare una playlist personalizzata in base all'umore attuale dell'utente ed uno stato emozionale target da raggiungere. La generazione viene effettuata in modo tale da creare un graduale passaggio emozionale, utilizzando un numero a scelta di
+canzoni della propria libreria, con l’obiettivo di migliorare l’esperienza finale
+dell’utente che utilizza il sistema.
